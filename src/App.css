@@ -1,0 +1,22 @@
+.home-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .home-container h1 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .home-container p {
+    margin-bottom: 15px;
+  }
+  
+  .home-container ul {
+    padding-left: 20px;
+  }
+  
+  .home-container li {
+    margin-bottom: 10px;
+  }
