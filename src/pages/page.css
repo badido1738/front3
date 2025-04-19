@@ -1,0 +1,160 @@
+.page-container {
+    max-width: 1400px;
+    margin: 2px auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e2e7ee;
+   /* background-color: #f4f6f9;*/
+  }
+  
+  /* Conteneur du tableau */
+  .table-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    padding: 25px;
+  }
+  
+  /* En-tête du tableau */
+  .table-header {
+    display: flex;
+   justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .table-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+  }
+  
+  /* Tableau */
+  .data-table {
+    width: 100%;
+    
+    border-collapse: collapse;
+    table-layout: fixed;
+    background-color: white;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    overflow: hidden;
+
+  }
+  
+  .data-table thead {
+    background-color: #f1f2f6;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 0px solid #e0e0e0;
+      white-space: normal;       /* permet le retour à la ligne */
+   overflow: visible;         /* ne cache plus le contenu */
+   text-overflow: unset;      /*  pas de "..." */
+   word-break: break-word;    /*  casse les mots longs si besoin */
+    
+  }
+  
+
+ 
+
+
+  .data-table th {
+    font-weight: 600;
+    color: #2f3542;
+    font-size: 0.95rem;
+  }
+  
+  .data-table td {
+    color: #3c3c3c;
+    background-color: #fff;
+  }
+  
+  /* Effet hover pro + 3D */
+  .data-table tbody tr:hover {
+    background-color: #f0f4f8;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+  
+  
+  .description-cell {
+    max-width: 500px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    
+  }
+  
+  /* Actions */
+  .actions-cell {
+    display: flex;
+    gap: 10px;
+   margin: 0px;
+  }
+  
+  
+  button {
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-right: 0px;
+    
+    white-space: nowrap ;
+   
+  
+  }
+  
+  button:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+
+  
+  /* Bouton Modifier */
+  .btn-edit {
+    background-color: #0a614b;
+    color: white;
+   
+  }
+  
+  .btn-edit:hover {
+    background-color: #0e9e76;
+  }
+  
+  /* Bouton Supprimer */
+  .btn-delete {
+    background-color: #b90e0e;
+    color: white;
+  }
+  
+  .btn-delete:hover {
+    background-color: #f31818;
+  }
+  
+  /* Overlay formulaire */
+  .form-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 25px;
+
+  }
+  
+ 

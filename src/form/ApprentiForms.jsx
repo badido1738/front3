@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../form/form.css";
 
-function StagiaireForm({ initialData, onSubmit, onCancel }) {
+function ApprentiForms({ initialData, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
-    id: "",
+    idApprenti: "",
     nom: "",
     prenom: "",
     dateNaissance: "",
     telephone: "",
     type: "",
+    numeroCCP: "",
     email: "",
     niveauEtude: "",
     numeroStage: "",
@@ -21,15 +22,16 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
       setFormData({
         ...initialData,
         // Assurez-vous que toutes les propriétés nécessaires sont présentes
-        id: initialData.id || "",
+        idApprenti: initialData.idApprenti || "",
         nom: initialData.nom || "",
         prenom: initialData.prenom || "",
         dateNaissance: initialData.dateNaissance || "",
         telephone: initialData.telephone || "",
+        type: initialData.type || "",
+        numeroCCP: initialData.numeroCCP || "",
         email: initialData.email || "",
         niveauEtude: initialData.niveauEtude || "",
         numeroStage: initialData.numeroStage || "",
-        type: initialData.type || "",
         specialite: initialData.specialite || "",
       });
     }
@@ -47,24 +49,24 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
   return (
     <div className="form-container">
       <div className="form-card">
-        <h3>Veuillez saisir les informations du stagiaire</h3>
+        <h3>Veuillez saisir les informations de l'apprenti</h3>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             {/* Ajout d'un champ caché pour l'ID si on est en mode édition */}
             {initialData && (
-              <input type="hidden" name="id" value={formData.id} />
+              <input type="hidden" name="idApprenti" value={formData.idApprenti} />
             )}
             
             <div className="form-group">
-              <label>ID Stagiaire :</label>
+              <label>ID Apprenti :</label>
               <input 
                 type="text" 
-                name="id" 
+                name="idApprenti" 
                 className="form-input"
-                placeholder="Entrer l'ID du stagiaire" 
+                placeholder="Entrer l'identifiant" 
                 required 
-                value={formData.id} 
+                value={formData.idApprenti} 
                 onChange={handleChange} 
                 disabled={initialData ? true : false}
               />
@@ -134,6 +136,19 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
                 <option value="Stage Pratique">Stage Pratique</option>
                 <option value="Stage PFE">Stage PFE</option>
               </select>
+            </div>
+
+            <div className="form-group">
+              <label>Numéro CCP :</label>
+              <input 
+                type="text" 
+                name="numeroCCP" 
+                className="form-input"
+                placeholder="Entrer le numéro CCP" 
+                required 
+                value={formData.numeroCCP} 
+                onChange={handleChange} 
+              />
             </div>
 
             <div className="form-group">
@@ -217,4 +232,4 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
   );
 }
 
-export default StagiaireForm;
+export default ApprentiForms;

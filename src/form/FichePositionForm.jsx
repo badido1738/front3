@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import "../form/form.css";
 function FichePositionForm() {
   const [formData, setFormData] = useState({
     idPosition: "",
