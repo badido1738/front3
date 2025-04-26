@@ -1,36 +1,44 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import StageForm from "../form/StageForm";
 import "../form/form.css";
 import "../pages/page.css";
 
 function StagePage() {
   const [showForm, setShowForm] = useState(false);
-  const [stages, setStages] = useState([
-    {
-      idStage: 1,
-      dateDebut: "2025-03-01",
-      dateFin: "2025-06-01",
-      duree: "3 mois",
-      type: "Stage PFE",
-      idDirection: "DSI"
-    },
-    {
-      idStage: 2,
-      dateDebut: "2025-02-15",
-      dateFin: "2025-05-15",
-      duree: "3 mois",
-      type: "Stage Pratique",
-      idDirection: "DP"
-    }
-  ]);
+  const [stages, setStages] = useState([]);
   
   const [editingStage, setEditingStage] = useState(null);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stage ?")) {
-      setStages(stages.filter(stage => stage.idStage !== id));
-    }
-  };
+    useEffect(() => {
+      fetch('http://localhost:8080/stages')
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
+          setStages(data);
+        })
+    }, [])
+
+    const handleDelete = async (id) => {
+      if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stage ?")) {
+        try {
+          const response = await fetch(`http://localhost:8080/stages/${id}`, {
+            method: "DELETE",
+          });
+    
+          if (response.ok) {
+            window.location.reload();
+            setStages(stages.filter(stage => stage.id !== id));
+            console.log("Stage supprimé avec succès");
+          } else {
+            const errorText = await response.text();
+            console.error("Erreur lors de la suppression :", errorText);
+          }
+        } catch (error) {
+          console.error("Erreur réseau :", error);
+        }
+      }
+    };
 
   const handleEdit = (stage) => {
     setEditingStage(stage);

@@ -1,32 +1,46 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import ProfileForm from "../form/ProfileForm";
 import "../form/form.css";
 import "../pages/page.css";
 
 function ProfilePage() {
   const [showForm, setShowForm] = useState(false);
-  const [profiles, setProfiles] = useState([
-    {
-      idUser: 1,
-      nom: "aline boukhari",
-      role: "sous_admin",
-      idEmp: "EMP001"
-    },
-    {
-      idUser: 2,
-      nom: "anis chaib",
-      role: "gestionnaire",
-      idEmp: "EMP002"
-    }
-  ]);
-  
+  const [profiles, setProfiles] = useState([]);
   const [editingProfile, setEditingProfile] = useState(null);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce profil ?")) {
-      setProfiles(profiles.filter(profile => profile.idUser !== id));
+
+    useEffect(() => {
+      fetch('http://localhost:8080/utilisateurs')
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
+          setProfiles(data);
+        })
+    }, [])
+  
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stagiaire ?")) {
+      try {
+        const response = await fetch(`http://localhost:8080/utilisateurs/${id}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          window.location.reload();
+          setProfiles(profiles.filter(profile => profile.id !== id));
+          console.log("Profile supprimé avec succès");
+        } else {
+          const errorText = await response.text();
+          console.error("Erreur lors de la suppression :", errorText);
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+      }
     }
   };
+
 
   const handleEdit = (profile) => {
     setEditingProfile(profile);
@@ -92,7 +106,7 @@ function ProfilePage() {
               {profiles.map((profile) => (
                 <tr key={profile.idUser}>
                   <td>{profile.idUser}</td>
-                  <td>{profile.nom}</td>
+                  <td>{profile.username}</td>
                   <td>{profile.role}</td>
                   <td>{profile.idEmp}</td>
                   <td className="actions-cell">

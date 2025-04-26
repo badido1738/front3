@@ -3,34 +3,93 @@ import "../form/form.css";
 
 function StagiaireForm({ initialData, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
-    id: "",
     nom: "",
     prenom: "",
-    dateNaissance: "",
-    telephone: "",
+    dateN: "",
+    numTel: "",
     type: "",
     email: "",
     niveauEtude: "",
-    numeroStage: "",
-    specialite: "",
+    idStage: "",
+    idEtab: "",
+    idspecialite: ""
   });
 
-  // Initialiser le formulaire avec les données existantes pour modification
+  const [stages, setStages] = useState([]);
+  const [etablissements, setEtablissements] = useState([]);
+  const [specialites, setSpecialites] = useState([]);
+
+
+  useEffect(() => {
+    const fetchSpecialites = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/specialites");
+        
+        if (!response.ok) {
+          throw new Error("Échec du chargement des spécialités");
+        }
+        
+        const data = await response.json();
+        console.log("Specialites data:", data);
+        setSpecialites(data);
+      } catch (err) {
+      } finally {
+      }
+    };
+
+    fetchSpecialites();
+  }, []);
+
+  useEffect(() => {
+    const fetchEtablissements = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/etablissements");
+        
+        if (!response.ok) {
+          throw new Error("Échec du chargement des établissements");
+        }
+        
+        const data = await response.json();
+        setEtablissements(data);
+
+      } catch (err) {
+      }
+    };
+    fetchEtablissements();
+  }, []);
+
+  useEffect(() => {
+    const fetchStages = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/stages");
+        if (response.ok) {
+          const data = await response.json();
+          setStages(data);
+        } else {
+          console.error("Erreur lors de la récupération des stages");
+        }
+      } catch (error) {
+        console.error("Erreur réseau:", error);
+      }
+    };
+
+    fetchStages();
+  }, []);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
-        // Assurez-vous que toutes les propriétés nécessaires sont présentes
-        id: initialData.id || "",
         nom: initialData.nom || "",
         prenom: initialData.prenom || "",
-        dateNaissance: initialData.dateNaissance || "",
-        telephone: initialData.telephone || "",
+        dateN: initialData.dateN|| "",
+        numTel: initialData.numTel || "",
         email: initialData.email || "",
         niveauEtude: initialData.niveauEtude || "",
-        numeroStage: initialData.numeroStage || "",
         type: initialData.type || "",
-        specialite: initialData.specialite || "",
+        idStage: initialData.stage?.idStage || "",
+        idEtab: initialData.etablissement?.idEtab || "",
+        idspecialite: initialData.specialite?.idspecialite || "" // Note the lowercase "s" in idspecialite
       });
     }
   }, [initialData]);
@@ -39,10 +98,68 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+  
+    const action = initialData ? "modifier" : "ajouter";
+    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stagiaire ?`)) {
+      return;
+    }
+  
+    try {
+      // Préparer les données à envoyer avec les bons formats d'ID
+      const payload = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        dateN: formData.dateN,
+        numTel: formData.numTel,
+        type: formData.type,
+        email: formData.email,
+        niveauEtude: formData.niveauEtude,
+        stage: formData.idStage ? { idStage: formData.idStage } : null,
+        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
+        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
+      };
+            
+      console.log("Final payload:", payload);
+
+      const url = initialData 
+        ? `http://localhost:8080/sa/${initialData.idAS}`
+        : "http://localhost:8080/sa";
+  
+      const method = initialData ? "PUT" : "POST";
+  
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+        onSubmit(data);
+        
+        if (window.confirm(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+          window.location.reload();
+        } else {
+          // Note: setShowForm is not defined in this component
+          // You should either add it or remove this line
+          // setShowForm(false);
+        }
+      } else {
+        const errorText = await response.text();
+        console.error("Erreur lors de l'envoi:", errorText);
+        alert(`Erreur: ${errorText}`);
+      }
+    } catch (error) {
+      console.error("Erreur réseau:", error);
+      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+    }
   };
+
 
   return (
     <div className="form-container">
@@ -51,25 +168,6 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
-            {/* Ajout d'un champ caché pour l'ID si on est en mode édition */}
-            {initialData && (
-              <input type="hidden" name="id" value={formData.id} />
-            )}
-            
-            <div className="form-group">
-              <label>ID Stagiaire :</label>
-              <input 
-                type="text" 
-                name="id" 
-                className="form-input"
-                placeholder="Entrer l'ID du stagiaire" 
-                required 
-                value={formData.id} 
-                onChange={handleChange} 
-                disabled={initialData ? true : false}
-              />
-            </div>
-            
             <div className="form-group">
               <label>Nom :</label>
               <input 
@@ -97,26 +195,25 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
             </div>
 
             <div className="form-group">
-              <label>Date de naissance :</label>
-              <input 
-                type="date" 
-                name="dateNaissance" 
-                className="form-input"
-                required 
-                value={formData.dateNaissance} 
-                onChange={handleChange} 
-              />
-            </div>
+            <label>Date de Naissance :</label>
+            <input
+              type="date"
+              name="dateN"
+              className="form-input"
+              required
+              value={formData.dateN}
+              onChange={handleChange}
+            />
+          </div>
 
             <div className="form-group">
               <label>Numéro de téléphone :</label>
               <input 
                 type="tel" 
-                name="telephone" 
+                name="numTel" 
                 className="form-input"
                 placeholder="Entrer le numéro" 
-                required 
-                value={formData.telephone} 
+                value={formData.numTel} 
                 onChange={handleChange} 
               />
             </div>
@@ -126,13 +223,12 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
               <select 
                 name="type" 
                 className="form-select"
-                required 
                 value={formData.type} 
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le type -</option>
-                <option value="Stage Pratique">Stage Pratique</option>
-                <option value="Stage PFE">Stage PFE</option>
+                <option value="Stagiaire">Stagiaire</option>
+                <option value="Apprentis">Apprentis</option>
               </select>
             </div>
 
@@ -143,7 +239,6 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
                 name="email" 
                 className="form-input"
                 placeholder="Entrer l'e-mail" 
-                required 
                 value={formData.email} 
                 onChange={handleChange} 
               />
@@ -154,49 +249,65 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
               <select 
                 name="niveauEtude" 
                 className="form-select"
-                required 
                 value={formData.niveauEtude} 
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le niveau -</option>
-                <option value="Bac">Bac</option>
-                <option value="Licence">Licence</option>
-                <option value="Master">Master</option>
-                <option value="Doctorat">Doctorat</option>
+                <option value="premiére">premiére</option>
+                <option value="troisiéme">troisiéme</option>
+                <option value="quatrieme">quatrieme</option>
+                <option value="cinquéme">cinquéme</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Numéro de stage :</label>
-              <select 
-                name="numeroStage" 
+              <label>Spécialité :</label>
+              <select
+                name="idspecialite"
                 className="form-select"
-                required 
-                value={formData.numeroStage} 
+                value={formData.idspecialite}
                 onChange={handleChange}
               >
-                <option value="">- Sélectionner le numéro-</option>
-                <option value="n1">n1</option>
-                <option value="n2">n2</option>
-              </select> 
+                <option value="">-- Sélectionnez une spécialité --</option>
+                {specialites.map(spec => (
+                  <option key={spec.idspecialite} value={spec.idspecialite}>
+                    {spec.nom}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="form-group">
-              <label>Spécialité :</label>
+              <label>Établissement :</label>
               <select 
-                name="specialite" 
+                name="idEtab" 
                 className="form-select"
-                required 
-                value={formData.specialite} 
+                value={formData.idEtab}
                 onChange={handleChange}
               >
-                <option value="">- Sélectionner la spécialité -</option>
-                <option value="Informatique">Informatique</option>
-                <option value="Électronique">Électronique</option>
-                <option value="Mécanique">Mécanique</option>
-                <option value="Génie Civil">Génie Civil</option>
-                <option value="Automatisme">Automatisme</option>
-                <option value="HSE">HSE</option>
+                <option value="">-- Sélectionner un établissement --</option>
+                {etablissements.map(etab => (
+                  <option key={etab.idEtab} value={etab.idEtab}>
+                    {etab.nomEtab}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+              <div className="form-group">
+              <label>Stage :</label>
+              <select 
+                name="idStage" 
+                className="form-select"
+                value={formData.idStage} 
+                onChange={handleChange}
+              >
+                <option value="">- Sélectionner un stage -</option>
+                {stages.map((stage) => (
+                  <option key={stage.idStage} value={stage.idStage}>
+                    {stage.titre}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

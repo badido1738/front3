@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import ThemesForm from "../form/ThemesForm";
 import "../form/form.css";
@@ -6,35 +6,38 @@ import"../pages/page.css";
 
 function ThemesPage() {
   const [showForm, setShowForm] = useState(false);
-  const [themes, setThemes] = useState([
-    {
-      idTheme: 1,
-      titre: "Développement d'une application web de gestion",
-      description: "Création d'une application web pour la gestion des stagiaires et apprentis."
-    },
-    {
-      idTheme: 2,
-      titre: "Étude sur l'automatisation des processus industriels",
-      description: "Analyse et mise en place de solutions pour automatiser les processus de production."
-    },
-    {
-        idTheme: 3,
-        titre: " ....... ",
-        description: "......."
-      },
-    
-      {
-        idTheme: 4,
-        titre: "...........",
-        description: "............"
-      },
-  ]);
+  const [themes, setThemes] = useState([]);
   
   const [editingTheme, setEditingTheme] = useState(null);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce thème ?")) {
-      setThemes(themes.filter(theme => theme.idTheme !== id));
+  useEffect(() => {
+    fetch('http://localhost:8080/themes')
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        setThemes(data);
+      })
+  }, [])
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce theme ?")) {
+      try {
+        const response = await fetch(`http://localhost:8080/themes/${id}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          window.location.reload();
+          setThemes(themes.filter(themes => themes.id !== id));
+          console.log("Theme supprimé avec succès");
+        } else {
+          const errorText = await response.text();
+          console.error("Erreur lors de la suppression :", errorText);
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+      }
     }
   };
 

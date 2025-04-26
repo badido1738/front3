@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import StagiaireForm from "../form/StagiaireForm";
 import "../form/form.css";
@@ -7,31 +7,41 @@ import"../pages/page.css";
 
 function StagiairesPage() {
   const [showForm, setShowForm] = useState(false);
-  const [stagiaires, setStagiaires] = useState([
-    {
-      id: 1,
-      nom: "Dupont",
-      prenom: "Jean",
-      numeroStage: "n1",
-      specialite: "Informatique"
-    },
-    {
-      id: 2,
-      nom: "Martin",
-      prenom: "Sophie",
-      numeroStage: "n2",
-      specialite: "Électronique"
-    },
-    // Vous pouvez ajouter d'autres données de test ici
-  ]);
-  
+  const [stagiaires, setStagiaires] = useState([]);
   const [editingStagiaire, setEditingStagiaire] = useState(null);
 
-  const handleDelete = (id) => {
+  useEffect(() => {
+    fetch('http://localhost:8080/sa')
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        setStagiaires(data);
+      })
+  }, [])
+
+
+  const handleDelete = async (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stagiaire ?")) {
-      setStagiaires(stagiaires.filter(stagiaire => stagiaire.id !== id));
+      try {
+        const response = await fetch(`http://localhost:8080/sa/${id}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          window.location.reload();
+          setStagiaires(stagiaires.filter(stagiaire => stagiaire.id !== id));
+          console.log("Stagiaire supprimé avec succès");
+        } else {
+          const errorText = await response.text();
+          console.error("Erreur lors de la suppression :", errorText);
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+      }
     }
   };
+  
 
   const handleEdit = (stagiaire) => {
     setEditingStagiaire(stagiaire);
@@ -48,18 +58,11 @@ function StagiairesPage() {
     setEditingStagiaire(null);
   };
 
-  // Cette fonction sera appelée après l'ajout ou la modification d'un stagiaire
-  const handleFormSubmit = (formData) => {
-    if (editingStagiaire) {
-      // Mise à jour d'un stagiaire existant
-      setStagiaires(stagiaires.map(s => s.id === editingStagiaire.id ? { ...formData, id: s.id } : s));
-    } else {
-      // Ajout d'un nouveau stagiaire
-      const newId = stagiaires.length > 0 ? Math.max(...stagiaires.map(s => s.id)) + 1 : 1;
-      setStagiaires([...stagiaires, { ...formData, id: newId }]);
-    }
+  const handleFormSubmit = async (formData) => {  
     setShowForm(false);
+    setEditingStagiaire(null);
   };
+  
 
   return (
     <div className="page-container">
@@ -97,15 +100,15 @@ function StagiairesPage() {
             </thead>
             <tbody>
               {stagiaires.map((stagiaire) => (
-                <tr key={stagiaire.id}>
-                  <td>{stagiaire.id}</td>
+                <tr key={stagiaire.idAS}>
+                  <td>{stagiaire.idAS}</td>
                   <td>{stagiaire.nom}</td>
                   <td>{stagiaire.prenom}</td>
-                  <td>{stagiaire.numeroStage}</td>
-                  <td>{stagiaire.specialite}</td>
+                  <td>{stagiaire.idStage}</td>
+                  <td>{stagiaire.idSpecialite}</td> 
                   <td className="actions-cell">
                     <button className="btn-edit" onClick={() => handleEdit(stagiaire)}>Modifier</button>
-                    <button className="btn-delete" onClick={() => handleDelete(stagiaire.id)}>Supprimer</button>
+                    <button className="btn-delete" onClick={() => handleDelete(stagiaire.idAS)}>Supprimer</button>
                   </td>
                 </tr>
               ))}

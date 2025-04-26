@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import EncadreursForm from "../form/EncadreursForm";
 import "../form/form.css";
@@ -6,31 +6,40 @@ import"../pages/page.css";
 
 function EncadreursPage() {
   const [showForm, setShowForm] = useState(false);
-  const [encadreurs, setEncadreurs] = useState([
-    {
-      idEncd: 1,
-      nom: "ouali",
-      prenom: "amel",
-      poste: "Ingénieur",
-      email: "amel.ouali@gmail.com"
-    },
-    {
-      idEncd: 2,
-      nom: "ireten",
-      prenom: "djamel",
-      poste: "Chef de projet",
-      email: "ireten.djamel@gmail.com"
-    },
-    
-  ]);
+  const [encadreurs, setEncadreurs] = useState([]);
   
   const [editingEncadreur, setEditingEncadreur] = useState(null);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet encadreur ?")) {
-      setEncadreurs(encadreurs.filter(encadreur => encadreur.idEncd !== id));
-    }
-  };
+    useEffect(() => {
+      fetch('http://localhost:8080/encadrants')
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
+          setEncadreurs(data);
+        })
+    }, [])
+
+    const handleDelete = async (id) => {
+      if (window.confirm("Êtes-vous sûr de vouloir supprimer cet encardrant ?")) {
+        try {
+          const response = await fetch(`http://localhost:8080/encadrants/${id}`, {
+            method: "DELETE",
+          });
+    
+          if (response.ok) {
+            window.location.reload();
+            setEncadrants(stagiaires.filter(encadrant => encadrant.id !== id));
+            console.log("Encadrant supprimé avec succès");
+          } else {
+            const errorText = await response.text();
+            console.error("Erreur lors de la suppression :", errorText);
+          }
+        } catch (error) {
+          console.error("Erreur réseau :", error);
+        }
+      }
+    };
 
   const handleEdit = (encadreur) => {
     setEditingEncadreur(encadreur);

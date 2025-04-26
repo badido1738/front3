@@ -25,9 +25,66 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+  
+    const action = initialData ? "modifier" : "ajouter";
+    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce theme ?`)) {
+      return;
+    }
+  
+    try {
+      // Préparer les données à envoyer avec les bons formats d'ID
+     /* const payload = {
+        nom: formData.nom,
+        prenom: formData.prenom,
+        dateN: formData.dateN,
+        numTel: formData.numTel,
+        type: formData.type,
+        email: formData.email,
+        niveauEtude: formData.niveauEtude,
+        stage: formData.idStage ? { idStage: formData.idStage } : null,
+        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
+        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
+      };
+            
+      console.log("Final payload:", payload);*/
+
+      const url = initialData 
+        ? `http://localhost:8080/themes/${initialData.idTheme}`
+        : "http://localhost:8080/themes";
+  
+      const method = initialData ? "PUT" : "POST";
+  
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Theme ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+        onSubmit(data);
+        
+        if (window.confirm(`Theme ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+          window.location.reload();
+        } else {
+          // Note: setShowForm is not defined in this component
+          // You should either add it or remove this line
+          // setShowForm(false);
+        }
+      } else {
+        const errorText = await response.text();
+        console.error("Erreur lors de l'envoi:", errorText);
+        alert(`Erreur: ${errorText}`);
+      }
+    } catch (error) {
+      console.error("Erreur réseau:", error);
+      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+    }
   };
 
   return (
@@ -41,20 +98,6 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
             {initialData && (
               <input type="hidden" name="idTheme" value={formData.idTheme} />
             )}
-            
-            <div className="form-group">
-              <label>ID Thème :</label>
-              <input 
-                type="text" 
-                name="idTheme" 
-                className="form-input"
-                placeholder="Entrer l'ID du thème" 
-                required 
-                value={formData.idTheme} 
-                onChange={handleChange} 
-                disabled={initialData ? true : false}
-              />
-            </div>
             
             <div className="form-group">
               <label>Titre :</label>
