@@ -34,22 +34,6 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
     }
   
     try {
-      // Préparer les données à envoyer avec les bons formats d'ID
-     /* const payload = {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        dateN: formData.dateN,
-        numTel: formData.numTel,
-        type: formData.type,
-        email: formData.email,
-        niveauEtude: formData.niveauEtude,
-        stage: formData.idStage ? { idStage: formData.idStage } : null,
-        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
-      };
-            
-      console.log("Final payload:", payload);*/
-
       const url = initialData 
         ? `http://localhost:8080/themes/${initialData.idTheme}`
         : "http://localhost:8080/themes";
@@ -71,10 +55,6 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
         
         if (window.confirm(`Theme ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
-        } else {
-          // Note: setShowForm is not defined in this component
-          // You should either add it or remove this line
-          // setShowForm(false);
         }
       } else {
         const errorText = await response.text();
@@ -90,7 +70,13 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
   return (
     <div className="form-container">
       <div className="form-card">
-        <h3>Veuillez saisir les informations du thème</h3>
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un thème" : "Ajouter un thème"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
@@ -111,30 +97,25 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange} 
               />
             </div>
-          </div>
-
-          <div className="form-group">
-            <label>Description détaillée :</label>
-            <textarea 
-              name="description" 
-              className="form-input"
-              placeholder="Description détaillée du thème"
-              rows="4"
-              required
-              value={formData.description} 
-              onChange={handleChange} 
-            />
+          
+            <div className="form-group">
+              <label>Description détaillée :</label>
+              <textarea 
+                name="description" 
+                className="form-input"
+                placeholder="Description détaillée du thème"
+                rows="4"
+                required
+                value={formData.description} 
+                onChange={handleChange} 
+              />
+            </div>
           </div>
 
           <div className="form-buttons">
             <button type="submit" className="btn-primary">
-              {initialData ? "Modifier" : "Ajouter le thème"}
+              {initialData ? "Modifier" : "Ajouter"}
             </button>
-            {onCancel && (
-              <button type="button" className="btn-secondary" onClick={onCancel}>
-                Annuler
-              </button>
-            )}
           </div>
         </form>
       </div>

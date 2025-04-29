@@ -12,18 +12,9 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
 
   const [employes, setEmployes] = useState([]);
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        ...initialData,
-        motDePasse: initialData.motDePasse || "",
-      });
-    }
-  }, [initialData]);
-
   // 🔄 Récupération des employés
   useEffect(() => {
-    fetch("http://localhost:8080/employes") // 🛠️ À adapter si ton endpoint est différent
+    fetch("http://localhost:8080/employes")
       .then((res) => res.json())
       .then((data) => setEmployes(data))
       .catch((err) => console.error("Erreur lors du chargement des employés:", err));
@@ -52,26 +43,9 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
     }
   
     try {
-      // Préparer les données à envoyer avec les bons formats d'ID
-      /*const payload = {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        dateN: formData.dateN,
-        numTel: formData.numTel,
-        type: formData.type,
-        email: formData.email,
-        niveauEtude: formData.niveauEtude,
-        stage: formData.idStage ? { idStage: formData.idStage } : null,
-        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
-      };
-      
-            
-      console.log("Final payload:", payload);*/
-
       const payload = {
         ...formData,
-        employe: { idEmp: formData.idEmp } // 🔗 lien vers l'employé
+        employe: { idEmp: formData.idEmp }
       };
 
       console.log("Final payload:", payload);
@@ -99,10 +73,6 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
         
         if (window.confirm(`Profile ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
-        } else {
-          // Note: setShowForm is not defined in this component
-          // You should either add it or remove this line
-          // setShowForm(false);
         }
       } else {
         const errorText = await response.text();
@@ -116,40 +86,36 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
   };
 
   return (
-    <div className="form-card">
-      <form onSubmit={handleSubmit}>
-        <div className="form-grid">
-          {initialData && (
-            <input type="hidden" name="idUser" value={formData.idUser} />
-          )}
-          
-          <div className="form-group">
-            <label>Username :</label>
-            <input
-              type="text"
-              name="username"
-              className="form-input"
-              placeholder="Entrer le username"
-              required
-              value={formData.username}
-              onChange={handleChange}
-            />
-          </div>
+    <div className="form-container">
+      <div className="form-card">
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un profil" : "Ajouter un profil"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
+          </button>
+        </div>
 
-      {/*}    <div className="form-group">
-            <label>Rôle :</label>
-            <input
-              type="text"
-              name="role"
-              className="form-input"
-              placeholder="Entrer le rôle"
-              required
-              value={formData.role}
-              onChange={handleChange}
-            />
-          </div>  */}
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {initialData && (
+              <input type="hidden" name="idUser" value={formData.idUser} />
+            )}
+            
+            <div className="form-group">
+              <label>Username :</label>
+              <input
+                type="text"
+                name="username"
+                className="form-input"
+                placeholder="Entrer le username"
+                required
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div className="form-group">
+            <div className="form-group">
               <label>Role :</label>
               <select 
                 name="role" 
@@ -158,56 +124,50 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le role -</option>
-                <option value="admin">Admin</option>
-                <option value="agent de circulation">Agent de circulatio</option>
-                <option value="sous-admin">Sous-Admin</option>
-
+                <option value="admin">directeur</option>
+                <option value="agent de circulation">Agent de circulation</option>
+                <option value="sous-admin">assistant</option>
               </select>
             </div>
 
-          <div className="form-group">
-            <label>Mot de Passe :</label>
-            <input
-              type="password"
-              name="motDePasse"
-              className="form-input"
-              placeholder="Entrer le mot de passe"
-              required
-              value={formData.motDePasse}
-              onChange={handleChange}
-            />
+            <div className="form-group">
+              <label>Mot de Passe :</label>
+              <input
+                type="password"
+                name="motDePasse"
+                className="form-input"
+                placeholder="Entrer le mot de passe"
+                required
+                value={formData.motDePasse}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Employé :</label>
+              <select
+                name="idEmp"
+                className="form-select"
+                value={formData.idEmp}
+                onChange={handleChange}
+              >
+                <option value="">- Sélectionner un employé -</option>
+                {employes.map((emp) => (
+                  <option key={emp.idEmp} value={emp.idEmp}>
+                    {emp.nom} {emp.prenom} — {emp.poste}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Employé :</label>
-            <select
-              name="idEmp"
-              className="form-select"
-              value={formData.idEmp}
-              onChange={handleChange}
-              //required
-            >
-              <option value="">- Sélectionner un employé -</option>
-              {employes.map((emp) => (
-                <option key={emp.idEmp} value={emp.idEmp}>
-                  {emp.nom} {emp.prenom} — {emp.poste}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="form-buttons">
-          <button type="submit" className="btn-primary">
-            {initialData ? "Modifier" : "Ajouter"}
-          </button>
-          {onCancel && (
-            <button type="button" className="btn-secondary" onClick={onCancel}>
-              Annuler
+          <div className="form-buttons">
+            <button type="submit" className="btn-primary">
+              {initialData ? "Modifier" : "Ajouter"}
             </button>
-          )}
-        </div>
-      </form>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

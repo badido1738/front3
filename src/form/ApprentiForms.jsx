@@ -49,7 +49,13 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
   return (
     <div className="form-container">
       <div className="form-card">
-        <h3>Veuillez saisir les informations de l'apprenti</h3>
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un apprenti" : "Ajouter un apprenti"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
@@ -111,6 +117,19 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
             </div>
 
             <div className="form-group">
+              <label>E-mail :</label>
+              <input 
+                type="email" 
+                name="email" 
+                className="form-input"
+                placeholder="Entrer l'e-mail" 
+                required 
+                value={formData.email} 
+                onChange={handleChange} 
+              />
+            </div>
+
+            <div className="form-group">
               <label>Numéro de téléphone :</label>
               <input 
                 type="tel" 
@@ -119,6 +138,19 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 placeholder="Entrer le numéro" 
                 required 
                 value={formData.telephone} 
+                onChange={handleChange} 
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Numéro CCP :</label>
+              <input 
+                type="text" 
+                name="numeroCCP" 
+                className="form-input"
+                placeholder="Entrer le numéro CCP" 
+                required 
+                value={formData.numeroCCP} 
                 onChange={handleChange} 
               />
             </div>
@@ -136,32 +168,6 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 <option value="Stage Pratique">Stage Pratique</option>
                 <option value="Stage PFE">Stage PFE</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label>Numéro CCP :</label>
-              <input 
-                type="text" 
-                name="numeroCCP" 
-                className="form-input"
-                placeholder="Entrer le numéro CCP" 
-                required 
-                value={formData.numeroCCP} 
-                onChange={handleChange} 
-              />
-            </div>
-
-            <div className="form-group">
-              <label>E-mail :</label>
-              <input 
-                type="email" 
-                name="email" 
-                className="form-input"
-                placeholder="Entrer l'e-mail" 
-                required 
-                value={formData.email} 
-                onChange={handleChange} 
-              />
             </div>
 
             <div className="form-group">
@@ -220,11 +226,6 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
             <button type="submit" className="btn-primary">
               {initialData ? "Modifier" : "Ajouter"}
             </button>
-            {onCancel && (
-              <button type="button" className="btn-secondary" onClick={onCancel}>
-                Annuler
-              </button>
-            )}
           </div>
         </form>
       </div>

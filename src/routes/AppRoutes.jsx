@@ -39,7 +39,7 @@ export default function AppRoutes() {
         <Route path="encadreur-form" element={<EncadreursForm />} />
         
         {/* Autres routes */}
-        <Route path="/emploi" element={<EmploiPage />} />
+        <Route path="/emploi-du-temps" element={<EmploiPage />} />
         <Route path="fiche-position" element={<FichePositionForm />} />
         <Route path="stage" element={<StagePage />} />
       </Routes>

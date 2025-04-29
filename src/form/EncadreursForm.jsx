@@ -12,9 +12,8 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
     idEmp: ""
   });
 
-    const [employes, setEmployes] = useState([]);
+  const [employes, setEmployes] = useState([]);
   
-
   // Initialiser le formulaire avec les données existantes pour modification
   useEffect(() => {
     if (initialData) {
@@ -31,8 +30,8 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
     }
   }, [initialData]);
 
- useEffect(() => {
-    fetch("http://localhost:8080/employes") // 🛠️ À adapter si ton endpoint est différent
+  useEffect(() => {
+    fetch("http://localhost:8080/employes")
       .then((res) => res.json())
       .then((data) => setEmployes(data))
       .catch((err) => console.error("Erreur lors du chargement des employés:", err));
@@ -51,22 +50,6 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
     }
   
     try {
-      // Préparer les données à envoyer avec les bons formats d'ID
-    /*  const payload = {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        dateN: formData.dateN,
-        numTel: formData.numTel,
-        type: formData.type,
-        email: formData.email,
-        niveauEtude: formData.niveauEtude,
-        stage: formData.idStage ? { idStage: formData.idStage } : null,
-        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
-      };
-            
-      console.log("Final payload:", payload); */
-
       const payload = {
         ...formData,
         employe: { idEmp: formData.idEmp } // 🔗 lien vers l'employé
@@ -93,10 +76,6 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
         
         if (window.confirm(`Encadrant ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
-        } else {
-          // Note: setShowForm is not defined in this component
-          // You should either add it or remove this line
-          // setShowForm(false);
         }
       } else {
         const errorText = await response.text();
@@ -112,7 +91,13 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
   return (
     <div className="form-container">
       <div className="form-card">
-        <h3>Veuillez saisir les informations de l'encadreur</h3>
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un encadreur" : "Ajouter un encadreur"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
@@ -120,7 +105,6 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
             {initialData && (
               <input type="hidden" name="idEncd" value={formData.idEncd} />
             )}
-            
             
             <div className="form-group">
               <label>Nom :</label>
@@ -186,36 +170,29 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange} 
               />
             </div>
+
+            <div className="form-group">
+              <label>Employé :</label>
+              <select
+                name="idEmp"
+                className="form-select"
+                value={formData.idEmp}
+                onChange={handleChange}
+              >
+                <option value="">- Sélectionner un employé -</option>
+                {employes.map((emp) => (
+                  <option key={emp.idEmp} value={emp.idEmp}>
+                    {emp.nom} {emp.prenom} — {emp.poste}
+                  </option>
+                ))}
+              </select>
+            </div> 
           </div>
-
-
-          <div className="form-group">
-            <label>Employé :</label>
-            <select
-              name="idEmp"
-              className="form-select"
-              value={formData.idEmp}
-              onChange={handleChange}
-              //required
-            >
-              <option value="">- Sélectionner un employé -</option>
-              {employes.map((emp) => (
-                <option key={emp.idEmp} value={emp.idEmp}>
-                  {emp.nom} {emp.prenom} — {emp.poste}
-                </option>
-              ))}
-            </select>
-          </div> 
 
           <div className="form-buttons">
             <button type="submit" className="btn-primary">
               {initialData ? "Modifier" : "Ajouter"}
             </button>
-            {onCancel && (
-              <button type="button" className="btn-secondary" onClick={onCancel}>
-                Annuler
-              </button>
-            )}
           </div>
         </form>
       </div>

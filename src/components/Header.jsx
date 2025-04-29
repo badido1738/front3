@@ -15,13 +15,12 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
   }, []);
 
   return (
-    <header className={`header ${scrolled ? "scrolled" : ""}`}>
+    <header className={`header ${!isSidebarOpen ? "sidebar-closed" : ""} ${scrolled ? "scrolled" : ""}`}>
       <button onClick={toggleSidebar} className={`menu-button ${isSidebarOpen ? "open" : ""}`}>
         {isSidebarOpen ? <X size={24} className="menu-icon" /> : <Menu size={24} className="menu-icon" />}
       </button>
       <h1 className="header-title">Gestion des Stagiaires</h1>
       <div className="header-right">
-       
         <button className="admin-button">Admin</button>
       </div>
     </header>

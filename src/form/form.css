@@ -1,199 +1,317 @@
 /* Form Styles */
 .form-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    animation: fadeIn 0.6s ease-out;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.form-card {
+  width: 1000px;
+  max-width: 1000px;
+  background-color: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  padding: 0 0 60px 0; /* Modifié pour l'en-tête */
+  margin: 0px auto;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  max-height: 83vh;
+  overflow-y: auto;
+}
+
+.form-card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--primary-color));
+}
+
+/* En-tête de formulaire avec bouton de fermeture d'onglet */
+.form-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e76903;
+  color: white;
+  padding: 12px 20px;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.form-app-header h2 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Style pour le bouton de fermeture d'onglet */
+.close-tab-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  line-height: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  transition: all 0.2s ease;
+}
+
+.close-tab-button:hover {
+  color: #ccc;
+}
+
+.close-tab-button:active {
+  transform: scale(0.9);
+}
+
+/* Styles pour le reste du formulaire */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr; /* Modifié pour avoir 4 colonnes */
+  grid-gap: 20px;
+  padding: 0 60px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+
+  position:relative;
+}
+
+.form-group label {
+  display: flex;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-size: 15px;
+  transition: var(--transition);
+
   
-  .form-card {
-    width: 100%;
-    max-width: 800px;
-    background-color: var(--card-bg);
-    backdrop-filter: blur(10px);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-md);
-    padding: 80px 60px;
-    margin: 0px auto;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-    max-height: 83vh;
-    overflow-y: auto;
-  }
-  
-  .form-card:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(to bottom, var(--primary-color));
-  }
-  
-  .form-card h3 {
-    text-align: center;
-    color: var(--text-color);
-    font-size: 1.6rem;
-    margin-bottom: 30px;
-    font-weight: 600;
-    position: relative;
-    padding-bottom: 12px;
-  }
-  
-  .form-card h3::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 3px;
-    background-color: var(--primary-color);
-    border-radius: 2px;
-  }
-  
+}
+
+.form-input, 
+.form-select {
+  width: 100%;
+  height: 45px;
+  padding: 10px 15px;
+  border: 1.5px solid #c4beba;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: var(--transition);
+  background-color: white;
+  border-left: 3px solid rgb(172, 165, 158);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+.form-input:hover, 
+.form-select:hover {
+  border-color: #e2d6d6;
+}
+
+.form-input:focus, 
+.form-select:focus {
+  outline: none;
+  transform: translateX(3px);
+  background-color: white;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 35px;
+  gap: 18px;
+  padding: 0 60px;
+}
+
+.btn-primary {
+  background: linear-gradient(to right, var(--primary-color), var(--primary-hover));
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 130px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, var(--primary-hover), var(--primary-dark));
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+.btn-primary:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: transform 0.6s;
+  transform: skewX(-15deg);
+}
+
+.btn-primary:hover:after {
+  transform: skewX(-15deg) translateX(200%);
+}
+
+/* Barre de recherche */
+.search-bar {
+  background-color: white;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.search-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-group label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.search-input, 
+.search-select {
+  height: 38px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.search-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  appearance: none;
+}
+
+.search-buttons {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.search-btn {
+  height: 38px;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-btn-primary {
+  background: #e76903;
+  color: white;
+  border: none;
+}
+
+.search-btn-secondary {
+  background: #f1f2f6;
+  border: 1px solid #ddd;
+  color: #444;
+}
+
+/* Responsive Styles pour les formulaires */
+@media (max-width: 1200px) {
   .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes pour les écrans moyens */
   }
   
-  .form-group {
-    margin-bottom: 12px;
-    position: relative;
+  .search-form {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr; /* 2 colonnes pour les tablettes */
+    padding: 0 30px;
   }
   
-  .form-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--text-color);
-    font-size: 15px;
-    transition: var(--transition);
-  }
-  
-  .form-input, 
-  .form-select {
-    width: 100%;
-    height: 45px;
-    padding: 10px 15px;
-    border: 1.5px solid #c4beba;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: var(--transition);
-    background-color: white;
-    border-left: 3px solid rgb(172, 165, 158);
-  }
-  
-  .form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    padding-right: 40px;
-  }
-  
-  .form-input:hover, 
-  .form-select:hover {
-    border-color: #e2d6d6;
-  }
-  
-  .form-input:focus, 
-  .form-select:focus {
-    outline: none;
-    transform: translateX(3px);
-    background-color: white;
+  .search-form {
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .form-buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 35px;
-    gap: 18px;
+    padding: 0 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-buttons {
+    flex-direction: column;
   }
   
   .btn-primary {
-    background: linear-gradient(to right, var(--primary-color), var(--primary-hover));
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    min-width: 130px;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-  }
-  
-  .btn-primary:hover {
-    background: linear-gradient(to right, var(--primary-hover), var(--primary-dark));
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(249, 115, 22, 0.3);
-  }
-  
-  .btn-primary:active {
-    transform: translateY(-1px);
-  }
-  
-  .btn-primary:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
     width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: transform 0.6s;
-    transform: skewX(-15deg);
+  }
+}
+
+@media (max-width: 576px) {
+  .form-app-header h2 {
+    font-size: 1.1rem;
   }
   
-  .btn-primary:hover:after {
-    transform: skewX(-15deg) translateX(200%);
+  .form-grid {
+    padding: 0 20px;
   }
   
-  /* Responsive Styles pour les formulaires */
-  @media (max-width: 992px) {
-    .form-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    
-    .form-card {
-      padding: 30px;
-      margin: 15px;
-    }
+  .form-buttons {
+    padding: 0 20px;
   }
-  
-  @media (max-width: 768px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .form-card {
-      padding: 25px;
-    }
-    
-    .form-buttons {
-      flex-direction: column;
-    }
-    
-    .btn-primary {
-      width: 100%;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .form-card {
-      padding: 20px;
-      margin: 10px;
-    }
-    
-    .form-card h3 {
-      font-size: 1.5rem;
-    }
-  }
+}

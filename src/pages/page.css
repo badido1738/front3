@@ -4,148 +4,174 @@
     padding: 40px 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #e2e7ee;
-   /* background-color: #f4f6f9;*/
-  }
+    /* background-color: #f4f6f9; */
+}
   
-  /* Conteneur du tableau */
-  .table-container {
+/* Conteneur du tableau */
+.table-container {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     overflow-x: auto;
     padding: 25px;
-  }
+    height: 80vh;
+}
   
-  /* En-tête du tableau */
-  .table-header {
+/* En-tête du tableau */
+.table-header {
     display: flex;
-   justify-content: space-between;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-  }
+}
   
-  .table-header h2 {
+.table-header h2 {
     font-size: 1.6rem;
     font-weight: 600;
     color: #2c3e50;
     margin: 0;
-  }
+}
   
-  /* Tableau */
-  .data-table {
+/* Tableau */
+.data-table {
     width: 100%;
-    
     border-collapse: collapse;
     table-layout: fixed;
     background-color: white;
     font-size: 0.95rem;
     border-radius: 12px;
     overflow: hidden;
-
-  }
+}
   
-  .data-table thead {
+.data-table thead {
     background-color: #f1f2f6;
-  }
+}
   
-  .data-table th,
-  .data-table td {
+.data-table th,
+.data-table td {
     padding: 15px;
     text-align: left;
     border-bottom: 0px solid #e0e0e0;
-      white-space: normal;       /* permet le retour à la ligne */
-   overflow: visible;         /* ne cache plus le contenu */
-   text-overflow: unset;      /*  pas de "..." */
-   word-break: break-word;    /*  casse les mots longs si besoin */
-    
-  }
-  
+    white-space: normal;       /* permet le retour à la ligne */
+    overflow: visible;         /* ne cache plus le contenu */
+    text-overflow: unset;      /* pas de "..." */
+    word-break: break-word;    /* casse les mots longs si besoin */
+}
 
- 
-
-
-  .data-table th {
+.data-table th {
     font-weight: 600;
     color: #2f3542;
     font-size: 0.95rem;
-  }
+}
   
-  .data-table td {
+.data-table td {
     color: #3c3c3c;
     background-color: #fff;
-  }
+}
   
-  /* Effet hover pro + 3D */
-  .data-table tbody tr:hover {
+/* Effet hover pro + 3D */
+.data-table tbody tr:hover {
     background-color: #f0f4f8;
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
-  }
+}
   
-  
-  .description-cell {
+.description-cell {
     max-width: 500px;
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
-    
-  }
+}
   
-  /* Actions */
-  .actions-cell {
+/* Actions */
+.actions-cell {
     display: flex;
     gap: 10px;
-   margin: 0px;
-  }
+    margin: 0px;
+}
   
-  
-  button {
-    border: none;
-    cursor: pointer;
+/* Icône boutons */
+.icon-button {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    padding: 0;
+    position: relative;
     transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.icon-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Couleurs des icônes */
+.view-icon {
+    color: white;
+    background-color: #2980b9;
+}
+
+.view-icon:hover {
+    background-color: #3498db;
+}
+
+.edit-icon {
+    color: white;
+    background-color: #0a614b;
+}
+
+.edit-icon:hover {
+    background-color: #0e9e76;
+}
+
+.delete-icon {
+    color: white;
+    background-color: #b90e0e;
+}
+
+.delete-icon:hover {
+    background-color: #f31818;
+}
+
+/* Tooltips pour les boutons */
+.icon-button:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    z-index: 10;
+}
+
+/* Autres styles existants */
+button {
     font-weight: 500;
-    border-radius: 6px;
-    padding: 7px 10px;
-    font-size: 0.85rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-right: 0px;
-    
-    white-space: nowrap ;
-   
+    white-space: nowrap;
+}
   
-  }
-  
-  button:active {
+button:active {
     transform: scale(0.98);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  }
-  
+}
 
-  
-  /* Bouton Modifier */
-  .btn-edit {
-    background-color: #0a614b;
-    color: white;
-   
-  }
-  
-  .btn-edit:hover {
-    background-color: #0e9e76;
-  }
-  
-  /* Bouton Supprimer */
-  .btn-delete {
-    background-color: #b90e0e;
-    color: white;
-  }
-  
-  .btn-delete:hover {
-    background-color: #f31818;
-  }
-  
-  /* Overlay formulaire */
-  .form-overlay {
+/* Overlay formulaire */
+.form-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -154,7 +180,107 @@
     justify-content: center;
     align-items: center;
     margin-left: 25px;
+}
 
+/* Conteneur des détails */
+.details-container {
+    padding: 20px;
+    color: #333;
+}
+
+.detail-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.detail-label {
+    font-weight: 600;
+    width: 120px;
+    color: #2c3e50;
+}
+
+.detail-value {
+    flex: 1;
+}
+
+/* Conteneur de recherche */
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
   }
   
- 
+  .search-box {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 0 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e0e0e0;
+    flex: 1;
+  }
+  
+  .search-icon {
+    color: #6c757d;
+    padding-right: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-input {
+    border: none;
+    padding: 10px 0;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #495057;
+    outline: none;
+  }
+  
+  .search-input::placeholder {
+    color: #adb5bd;
+  }
+  
+  .search-criteria {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .search-criteria label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-right: 5px;
+  }
+  
+  .search-criteria select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    color: #495057;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+  
+  .search-criteria select:focus {
+    border-color: #2980b9;
+  }
+  
+  /* Style pour le message "Aucun résultat" */
+  .empty-table {
+    text-align: center;
+    padding: 20px !important;
+    color: #6c757d;
+    font-style: italic;
+  }

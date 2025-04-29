@@ -19,7 +19,6 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
   const [etablissements, setEtablissements] = useState([]);
   const [specialites, setSpecialites] = useState([]);
 
-
   useEffect(() => {
     const fetchSpecialites = async () => {
       try {
@@ -89,7 +88,7 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
         type: initialData.type || "",
         idStage: initialData.stage?.idStage || "",
         idEtab: initialData.etablissement?.idEtab || "",
-        idspecialite: initialData.specialite?.idspecialite || "" // Note the lowercase "s" in idspecialite
+        idspecialite: initialData.specialite?.idspecialite || ""
       });
     }
   }, [initialData]);
@@ -118,7 +117,7 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
         niveauEtude: formData.niveauEtude,
         stage: formData.idStage ? { idStage: formData.idStage } : null,
         etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
+        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null
       };
             
       console.log("Final payload:", payload);
@@ -144,10 +143,6 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
         
         if (window.confirm(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
-        } else {
-          // Note: setShowForm is not defined in this component
-          // You should either add it or remove this line
-          // setShowForm(false);
         }
       } else {
         const errorText = await response.text();
@@ -160,11 +155,16 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
     }
   };
 
-
   return (
     <div className="form-container">
       <div className="form-card">
-        <h3>Veuillez saisir les informations du stagiaire</h3>
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un stagiaire" : "Ajouter un stagiaire"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
@@ -195,16 +195,16 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
             </div>
 
             <div className="form-group">
-            <label>Date de Naissance :</label>
-            <input
-              type="date"
-              name="dateN"
-              className="form-input"
-              required
-              value={formData.dateN}
-              onChange={handleChange}
-            />
-          </div>
+              <label>Date de Naissance :</label>
+              <input
+                type="date"
+                name="dateN"
+                className="form-input"
+                required
+                value={formData.dateN}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="form-group">
               <label>Numéro de téléphone :</label>
@@ -294,7 +294,7 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
               </select>
             </div>
 
-              <div className="form-group">
+            <div className="form-group">
               <label>Stage :</label>
               <select 
                 name="idStage" 
@@ -316,11 +316,6 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
             <button type="submit" className="btn-primary">
               {initialData ? "Modifier" : "Ajouter"}
             </button>
-            {onCancel && (
-              <button type="button" className="btn-secondary" onClick={onCancel}>
-                Annuler
-              </button>
-            )}
           </div>
         </form>
       </div>

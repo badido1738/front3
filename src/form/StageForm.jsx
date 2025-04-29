@@ -27,7 +27,6 @@ function StageForm({ initialData, onSubmit, onCancel }) {
       .catch((err) => console.error("Erreur lors du chargement des thèmes :", err));
   }, []);
   
-
   useEffect(() => {
     fetch("http://localhost:8080/encadrants")
       .then((res) => res.json())
@@ -35,16 +34,13 @@ function StageForm({ initialData, onSubmit, onCancel }) {
       .catch((err) => console.error("Erreur lors du chargement des encadrants :", err));
   }, []);
   
-
   useEffect(() => {
-    // Remplace l'URL par celle de ton backend
     fetch("http://localhost:8080/directions")
       .then((res) => res.json())
       .then((data) => setDirections(data))
       .catch((err) => console.error("Erreur lors du chargement des directions :", err));
   }, []);
   
-
   // Initialiser le formulaire avec les données existantes pour modification
   useEffect(() => {
     if (initialData) {
@@ -83,22 +79,6 @@ function StageForm({ initialData, onSubmit, onCancel }) {
     }
   
     try {
-      // Préparer les données à envoyer avec les bons formats d'ID
-      /*const payload = {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        dateN: formData.dateN,
-        numTel: formData.numTel,
-        type: formData.type,
-        email: formData.email,
-        niveauEtude: formData.niveauEtude,
-        stage: formData.idStage ? { idStage: formData.idStage } : null,
-        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null // Note lowercase "s" in idspecialite
-      };
-            
-      console.log("Final payload:", payload); */
-
       const payload = {
         ...formData,
         jourDeRecep: formData.jourDeRecep.join(','),
@@ -135,10 +115,6 @@ function StageForm({ initialData, onSubmit, onCancel }) {
         
         if (window.confirm(`Stage ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
-        } else {
-          // Note: setShowForm is not defined in this component
-          // You should either add it or remove this line
-          // setShowForm(false);
         }
       } else {
         const errorText = await response.text();
@@ -152,168 +128,161 @@ function StageForm({ initialData, onSubmit, onCancel }) {
   };
 
   return (
-    <div className="form-card">
-      <form onSubmit={handleSubmit}>
-        <div className="form-grid">
-          {initialData && (
-            <input type="hidden" name="idStage" value={formData.idStage} />
-          )}
-
-          <div className="form-group">
-            <label>Date de Début :</label>
-            <input
-              type="date"
-              name="dateDebut"
-              className="form-input"
-              ////required
-              value={formData.dateDebut}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Date de Fin :</label>
-            <input
-              type="date"
-              name="dateFin"
-              className="form-input"
-              //required
-              value={formData.dateFin}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group"> 
-          <label>Jours de Réception :</label>
-          <div className="form-checkbox-group">
-          {["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"].map((jour) => (
-          <label key={jour} className="checkbox-label">
-          <input
-          type="checkbox"
-          value={jour}
-          checked={formData.jourDeRecep.includes(jour)}
-          onChange={(e) => {
-            const selected = formData.jourDeRecep.includes(jour)
-              ? formData.jourDeRecep.filter((j) => j !== jour)
-              : [...formData.jourDeRecep, jour];
-            setFormData({ ...formData, jourDeRecep: selected });
-          }}
-        />
-        {jour}
-        </label>
-          ))}
-        </div>
-        </div>
-
-
-        <div className="form-group">
-        <label>Type de Prise en Charge :</label>
-        <div className="form-checkbox-group">
-        {["Transport", "Restauration", "Aucune"].map((type) => (
-        <label key={type} className="checkbox-label">
-        <input
-        type="checkbox"
-        value={type}
-        checked={formData.typeDePC.includes(type)}
-        onChange={(e) => {
-        const selected = formData.typeDePC.includes(type)
-        ? formData.typeDePC.filter((t) => t !== type)
-        : [...formData.typeDePC, type];
-        setFormData({ ...formData, typeDePC: selected });
-                  }}
-                />
-                {type}
-        </label>
-            ))}
-          </div>
-        </div>
-
-
-
-
-          <div className="form-group">
-            <label>Type :</label>
-            <select
-              name="type"
-              className="form-select"
-              //required
-              value={formData.type}
-              onChange={handleChange}
-            >
-              <option value="">- Sélectionner le type -</option>
-              <option value="Stage Pratique">Stage Pratique</option>
-              <option value="Stage PFE">Stage PFE</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-          <label>Direction :</label>
-          <select
-          name="idDirection"
-          className="form-select"
-          //required
-          value={formData.idDirection}
-          onChange={handleChange}
-        >
-        <option value="">-- Sélectionner une direction --</option>
-        {directions.map((dir) => (
-          <option key={dir.idDirection} value={dir.idDirection}>
-            {dir.designation}
-          </option>
-            ))}
-          </select>
-        </div>
-
-
-
-        <div className="form-group">
-  <label>Encadrant :</label>
-  <select
-  name="idEncd"  // Changé de idEncd à idEncd
-  className="form-select"
-  value={formData.idEncd}  // Changé ici aussi
-  onChange={handleChange}
->
-  {encadrants.map((enca) => (
-    <option key={enca.idEncd} value={enca.idEncd}>  {/* Changé ici */}
-      {enca.nom} {enca.prenom}
-    </option>
-  ))}
-</select>
-</div>
-
-
-        <div className="form-group">
-          <label>Thème :</label>
-          <select
-            name="idTheme"
-            className="form-select"
-            //required
-            value={formData.idTheme}
-            onChange={handleChange}
-          >
-            <option value="">-- Sélectionner un thème --</option>
-            {themes.map((theme) => (
-              <option key={theme.idTheme} value={theme.idTheme}>
-                {theme.titre}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        </div>
-
-        <div className="form-buttons">
-          <button type="submit" className="btn-primary">
-            {initialData ? "Modifier" : "Ajouter"}
+    <div className="form-container">
+      <div className="form-card">
+        {/* En-tête de formulaire avec l'icône X de fermeture */}
+        <div className="form-app-header">
+          <h2>{initialData ? "Modifier un stage" : "Ajouter un stage"}</h2>
+          <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
+            ×
           </button>
-          {onCancel && (
-            <button type="button" className="btn-secondary" onClick={onCancel}>
-              Annuler
-            </button>
-          )}
         </div>
-      </form>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {initialData && (
+              <input type="hidden" name="idStage" value={formData.idStage} />
+            )}
+
+            <div className="form-group">
+              <label>Date de Début :</label>
+              <input
+                type="date"
+                name="dateDebut"
+                className="form-input"
+                value={formData.dateDebut}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Date de Fin :</label>
+              <input
+                type="date"
+                name="dateFin"
+                className="form-input"
+                value={formData.dateFin}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group"> 
+              <label>Jours de Réception :</label>
+              <div className="form-checkbox-group">
+                {["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"].map((jour) => (
+                  <label key={jour} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      value={jour}
+                      checked={formData.jourDeRecep.includes(jour)}
+                      onChange={(e) => {
+                        const selected = formData.jourDeRecep.includes(jour)
+                          ? formData.jourDeRecep.filter((j) => j !== jour)
+                          : [...formData.jourDeRecep, jour];
+                        setFormData({ ...formData, jourDeRecep: selected });
+                      }}
+                    />
+                    {jour}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Type de Prise en Charge :</label>
+              <div className="form-checkbox-group">
+                {["Transport", "Restauration", "Aucune"].map((type) => (
+                  <label key={type} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      value={type}
+                      checked={formData.typeDePC.includes(type)}
+                      onChange={(e) => {
+                        const selected = formData.typeDePC.includes(type)
+                          ? formData.typeDePC.filter((t) => t !== type)
+                          : [...formData.typeDePC, type];
+                        setFormData({ ...formData, typeDePC: selected });
+                      }}
+                    />
+                    {type}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Type :</label>
+              <select
+                name="type"
+                className="form-select"
+                value={formData.type}
+                onChange={handleChange}
+              >
+                <option value="">- Sélectionner le type -</option>
+                <option value="Stage Pratique">Stage Pratique</option>
+                <option value="Stage PFE">Stage PFE</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Direction :</label>
+              <select
+                name="idDirection"
+                className="form-select"
+                value={formData.idDirection}
+                onChange={handleChange}
+              >
+                <option value="">-- Sélectionner une direction --</option>
+                {directions.map((dir) => (
+                  <option key={dir.idDirection} value={dir.idDirection}>
+                    {dir.designation}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Encadrant :</label>
+              <select
+                name="idEncd"
+                className="form-select"
+                value={formData.idEncd}
+                onChange={handleChange}
+              >
+                <option value="">-- Sélectionner un encadrant --</option>
+                {encadrants.map((enca) => (
+                  <option key={enca.idEncd} value={enca.idEncd}>
+                    {enca.nom} {enca.prenom}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Thème :</label>
+              <select
+                name="idTheme"
+                className="form-select"
+                value={formData.idTheme}
+                onChange={handleChange}
+              >
+                <option value="">-- Sélectionner un thème --</option>
+                {themes.map((theme) => (
+                  <option key={theme.idTheme} value={theme.idTheme}>
+                    {theme.titre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-buttons">
+            <button type="submit" className="btn-primary">
+              {initialData ? "Modifier" : "Ajouter"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

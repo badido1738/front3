@@ -22,6 +22,7 @@
   
   /* Dimensions */
   --sidebar-width: 250px;
+  --sidebar-width-closed: 70px; /* Nouvelle variable pour définir la largeur du sidebar en mode fermé */
   --header-height: 70px;
   --header-height-scrolled: 60px;
 }
@@ -64,8 +65,9 @@ body, html {
   min-height: 100vh;
 }
 
+/* Ajustement de la zone de contenu quand le sidebar est fermé */
 .content-area.sidebar-closed {
-  margin-left: 0;
+  margin-left: var(--sidebar-width-closed); /* Utilise la nouvelle variable */
 }
 
 .main-content {
@@ -102,8 +104,11 @@ body, html {
   flex-direction: column;
 }
 
+/* Style du sidebar en mode fermé - garde une largeur minimale pour les icônes */
 .sidebar.closed {
-  transform: translateX(-100%);
+  width: var(--sidebar-width-closed);
+  transform: none; /* Ne pas cacher le sidebar, mais le réduire */
+  padding-top: 70px;
 }
 
 .sidebar-title {
@@ -156,6 +161,17 @@ body, html {
   overflow: hidden;
 }
 
+/* Ajustement des éléments de menu dans le sidebar fermé */
+.sidebar.closed .menu-item {
+  justify-content: center; /* Centre les icônes quand le sidebar est fermé */
+  padding: 14px 5px; /* Réduit le padding horizontal */
+}
+
+/* Centrer les icônes SVG dans le sidebar fermé */
+.sidebar.closed .menu-item svg {
+  margin: 0 auto;
+}
+
 .menu-item:before {
   content: '';
   position: absolute;
@@ -177,11 +193,23 @@ body, html {
   transform: translateX(5px);
 }
 
+/* Désactiver la transformation sur hover pour le sidebar fermé */
+.sidebar.closed .menu-item:hover {
+  transform: none; /* Pas de décalage sur hover quand fermé */
+}
+
 .menu-item.active {
   background-color: rgba(255, 255, 255, 0.2);
   transform: translateX(5px);
   border-left: 4px solid white;
   font-weight: 600;
+}
+
+/* Ajustement pour les éléments actifs dans le sidebar fermé */
+.sidebar.closed .menu-item.active {
+  transform: none;
+  border-left: none; /* Supprime la bordure gauche */
+  border-right: 4px solid white; /* Ajoute une bordure droite à la place */
 }
 
 .menu-item svg {
@@ -220,6 +248,12 @@ body, html {
   position: relative;
 }
 
+/* Ajustement des sous-menus pour le sidebar fermé */
+.sidebar.closed .submenu-item {
+  justify-content: center;
+  padding: 10px 5px;
+}
+
 .submenu-item:before {
   content: '';
   position: absolute;
@@ -244,6 +278,11 @@ body, html {
 .submenu-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
   transform: translateX(5px);
+}
+
+/* Désactiver la transformation sur hover pour les sous-menus en mode fermé */
+.sidebar.closed .submenu-item:hover {
+  transform: none;
 }
 
 .has-submenu {
@@ -286,13 +325,14 @@ body, html {
   position: fixed;
   top: 0;
   right: 0;
-  left: var(--sidebar-width);
+  left: var(--sidebar-width); /* Par défaut, commence après le sidebar */
   z-index: 10;
   transition: var(--transition);
 }
 
+/* Ajustement du header quand le sidebar est fermé */
 .header.sidebar-closed {
-  left: 0;
+  left: var(--sidebar-width-closed); /* S'aligne avec le sidebar fermé */
 }
 
 .header.scrolled {
@@ -361,7 +401,7 @@ body, html {
 
 .header-right {
   display: flex;
-  align-items: center;
+  align-items:center;
   height: 100%;
   gap: 10px;
 }
@@ -527,4 +567,29 @@ body, html {
   .header-title {
     font-size: 1.1rem;
   }
+}
+
+/* Styles spécifiques pour le sidebar en mode fermé */
+.sidebar.closed .sidebar-title,
+.sidebar.closed .sidebar-footer {
+  display: none; /* Masque le titre et le pied de page quand fermé */
+}
+
+.sidebar.closed .menu-item span,
+.sidebar.closed .submenu-item span {
+  display: none; /* Masque les textes des éléments de menu quand fermé */
+}
+
+.sidebar.closed .toggle-submenu {
+  display: none; /* Masque les boutons de toggle des sous-menus quand fermé */
+}
+
+/* Organisation et alignement du menu */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item, .submenu-item {
+  justify-content: start;
 }
