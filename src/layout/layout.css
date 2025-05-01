@@ -44,7 +44,7 @@ body, html {
 
 /* Layout principal avec image de fond */
 .layout-container {
-  background-image: url('../assets/Sonatrach-1.jpeg');
+  background-image: url('../assets/sona.png');
   background-size: cover; 
   background-position: center; 
   background-repeat: no-repeat;

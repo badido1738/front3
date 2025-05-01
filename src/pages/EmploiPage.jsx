@@ -73,59 +73,119 @@ function EmploiPage() {
   };
   
   return (
-    <div className="emploi-container">
-      <h2 className="emploi-title">Emploi du temps</h2>
+    <div className="envoi-page-container">
+      <h1 className="envoi-page-title">
+        Envoi de Document
+      </h1>
       
-      <div className="days-container">
-        {daysOfWeek.map(day => (
-          <div 
-            key={day.id}
-            className={`day-card ${selectedDay && selectedDay.id === day.id ? 'selected' : ''}`}
-            onClick={() => handleDayClick(day)}
-          >
-            <h3>{day.name}</h3>
-          </div>
-        ))}
-      </div>
-      
-      {selectedDay && (
-        <div className="stagiaires-section">
-          <h3>Stagiaires du {selectedDay.name}</h3>
-          
-          {stagiairesList.length > 0 ? (
-            <div className="stagiaires-list">
-              <table className="stagiaires-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Type</th>
-                    <th>Spécialité</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stagiairesList.map(stagiaire => (
-                    <tr key={stagiaire.id} onClick={() => handleStagiaireClick(stagiaire)}>
-                      <td>{stagiaire.id}</td>
-                      <td>{stagiaire.nom}</td>
-                      <td>{stagiaire.prenom}</td>
-                      <td>{stagiaire.type}</td>
-                      <td>{stagiaire.specialite}</td>
-                      <td>
-                        <button className="details-button">Détails</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="no-stagiaires">Aucun stagiaire pour ce jour</p>
+      <form onSubmit={handleSubmit}>
+        {/* Direction qui envoie le document */}
+        <div className="envoi-form-group">
+          <label htmlFor="directionEnvoi" className="envoi-form-label">
+            Direction qui envoie le document:
+          </label>
+          <input
+            type="text"
+            id="directionEnvoi"
+            name="directionEnvoi"
+            value={formData.directionEnvoi}
+            onChange={handleChange}
+            className="envoi-form-input"
+          />
+          {errors.directionEnvoi && (
+            <p className="envoi-form-error">{errors.directionEnvoi}</p>
           )}
         </div>
-      )}
+        
+        {/* Nom du document */}
+        <div className="envoi-form-group">
+          <label htmlFor="nomDocument" className="envoi-form-label">
+            Nom du document:
+          </label>
+          <input
+            type="text"
+            id="nomDocument"
+            name="nomDocument"
+            value={formData.nomDocument}
+            onChange={handleChange}
+            className="envoi-form-input"
+          />
+          {errors.nomDocument && (
+            <p className="envoi-form-error">{errors.nomDocument}</p>
+          )}
+        </div>
+        
+        {/* Le champ de sélection de fichier a été supprimé, nous gardons uniquement le nom du document */}
+        
+        {/* Nom du stagiaire/apprenti */}
+        <div className="envoi-form-group">
+          <label htmlFor="nomStagiaire" className="envoi-form-label">
+            Nom du stagiaire/apprenti concerné:
+          </label>
+          <input
+            type="text"
+            id="nomStagiaire"
+            name="nomStagiaire"
+            value={formData.nomStagiaire}
+            onChange={handleChange}
+            className="envoi-form-input"
+          />
+          {errors.nomStagiaire && (
+            <p className="envoi-form-error">{errors.nomStagiaire}</p>
+          )}
+        </div>
+        
+        {/* Direction qui reçoit le document */}
+        <div className="envoi-form-group">
+          <label htmlFor="directionReception" className="envoi-form-label">
+            Direction qui reçoit le document:
+          </label>
+          <input
+            type="text"
+            id="directionReception"
+            name="directionReception"
+            value={formData.directionReception}
+            onChange={handleChange}
+            className="envoi-form-input"
+          />
+          {errors.directionReception && (
+            <p className="envoi-form-error">{errors.directionReception}</p>
+          )}
+        </div>
+        
+        {/* Notes ou commentaires */}
+        <div className="envoi-form-group">
+          <label htmlFor="notes" className="envoi-form-label">
+            Notes ou commentaires:
+          </label>
+          <textarea
+            id="notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows="4"
+            className="envoi-form-textarea"
+          />
+        </div>
+        
+        {/* Boutons d'action */}
+        <div className="envoi-form-buttons">
+          <button
+            type="submit"
+            className="envoi-form-button envoi-button-submit"
+          >
+            Envoyer le document
+          </button>
+          
+          <button
+            type="button"
+            onClick={goToHistorique}
+            className="envoi-form-button envoi-button-historique"
+          >
+            Historique
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
