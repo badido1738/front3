@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaEye, FaFileDownload } from 'react-icons/fa';
-import "../pages/page.css";
+import "../pages/Historique.css";
+
 // Données fictives pour l'exemple
 const DUMMY_HISTORIQUE = [
   {

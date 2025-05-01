@@ -1,0 +1,230 @@
+/* STYLES DE BASE POUR LES NOTIFICATIONS */
+
+/* En-tête des notifications */
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  
+  .notifications-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f2f4f7;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .notification-icon {
+    color: #3498db;
+  }
+  
+  .notification-count {
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  
+  /* Animation pour les nouvelles notifications */
+  @keyframes notification-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+  }
+  
+  .notification-count {
+    animation: notification-pulse 1s infinite;
+  }
+  
+  /* Conteneur du tableau de notifications */
+  .notifications-table-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+    padding: 25px;
+    height: 70vh;
+  }
+  
+  /* Largeurs de colonnes équilibrées */
+  .notifications-table th:nth-child(1) { width: 18%; }
+  .notifications-table th:nth-child(2) { width: 17%; }
+  .notifications-table th:nth-child(3) { width: 17%; }
+  .notifications-table th:nth-child(4) { width: 10%; }
+  .notifications-table th:nth-child(5) { width: 13%; }
+  .notifications-table th:nth-child(6) { width: 10%; }
+  .notifications-table th:nth-child(7) { width: 15%; }
+  
+  /* Notification non lue */
+  .unread-notification {
+    background-color: rgba(52, 152, 219, 0.05) !important;
+    font-weight: 500;
+  }
+  
+  .unread-notification td {
+    background-color: rgba(52, 152, 219, 0.05) !important;
+  }
+  
+  /* Styles pour les différents statuts */
+  .status-tag {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  .status-recu {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .status-non-recu {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  /* Styles pour les types de personnes */
+  .person-type {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  
+  .stagiaire {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .apprenti {
+    background-color: #fff8e1;
+    color: #ffa000;
+  }
+  
+  /* STYLES POUR LES BOUTONS D'ACTION (ICÔNES) */
+  
+  /* Style de base pour les boutons d'icônes */
+  .icon-button {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    padding: 0;
+    position: relative;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+  }
+  
+  .icon-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Styles spécifiques pour chaque type de bouton */
+  .receive-icon {
+    background-color: #27ae60;
+  }
+  
+  .receive-icon svg {
+    color: white;
+  }
+  
+  .receive-icon:hover {
+    background-color: #2ecc71;
+  }
+  
+  .not-receive-icon {
+    background-color: #e74c3c;
+  }
+  
+  .not-receive-icon svg {
+    color: white;
+  }
+  
+  .not-receive-icon:hover {
+    background-color: #f03a27;
+  }
+  
+  /* TOOLTIP - Correction pour le problème de disparition au clic */
+  .icon-button::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  
+  .icon-button:hover::before {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* STYLES RESPONSIFS */
+  @media (max-width: 768px) {
+    .notifications-table-container {
+      padding: 15px;
+      height: auto;
+      max-height: 80vh;
+    }
+    
+    .search-container {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .notifications-table th:nth-child(4),
+    .notifications-table td:nth-child(4) {
+      display: none;
+    }
+    
+    .notifications-title {
+      font-size: 1.4rem;
+    }
+    
+    .notifications-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .icon-button {
+      width: 28px;
+      height: 28px;
+    }
+    
+    .icon-button svg {
+      width: 14px;
+      height: 14px;
+    }
+  }

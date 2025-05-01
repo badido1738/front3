@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheck, FaTimes, FaBell, FaSearch } from 'react-icons/fa';
-import '../pages/page.css';
+import '../pages/Notification.css';
 
 const NotificationPage = () => {
   // État pour les notifications
