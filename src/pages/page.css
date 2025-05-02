@@ -103,38 +103,43 @@
     position: relative;
     transition: all 0.2s ease;
     border: none;
-    background: none;
+    
     cursor: pointer;
 }
 
 .icon-button svg {
     width: 18px;
     height: 18px;
+    color:white ;
 }
 
 /* Couleurs des icônes */
+
 .view-icon {
-    color: white;
-    background-color: #2980b9;
+  color: white;
+  background-color: #2980b9 !important;
 }
 
+.edit-icon {
+  color: white;
+  background-color: #0a614b !important;
+}
+
+.delete-icon {
+  color: white;
+  background-color: #b90e0e !important;
+}
 .view-icon:hover {
     background-color: #3498db;
 }
 
-.edit-icon {
-    color: white;
-    background-color: #0a614b;
-}
+
 
 .edit-icon:hover {
     background-color: #0e9e76;
 }
 
-.delete-icon {
-    color: white;
-    background-color: #b90e0e;
-}
+
 
 .delete-icon:hover {
     background-color: #f31818;

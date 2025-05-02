@@ -178,27 +178,30 @@
     position: relative;
     transition: all 0.2s ease;
     border: none;
-    color:inherit;
+    
     cursor: pointer;
+  }
+  .icon-button svg {
+    width: 18px;
+    height: 18px;
+    color: white !important; 
+    
   }
   
   .view-icon {
-    color: #2980b9;
+    background-color: #2980b9;
   }
   
   .view-icon:hover {
     background-color: #3498db;
-    color: white;
   }
   
   .download-icon {
-    color: #0a614b;
-   
+    background-color: #0a614b!important;
   }
   
   .download-icon:hover {
     background-color: #0e9e76;
-    color: white;
   }
   
   .icon-button:hover::before {
