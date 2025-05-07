@@ -114,11 +114,14 @@ body, html {
 .sidebar-title {
   font-size: 1.4rem;
   font-weight: 600;
-  margin: 25px 20px;
-  padding-bottom: 15px;
+  color: white;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
-  background-image: url('../assets/Sonatrach1.svg.png');
+  /* Suppression de la ligne suivante pour enlever le logo */
+  /* background-image: url('../assets/Sonatrach1.svg.png'); */
   background-position: right; 
   background-repeat: no-repeat;
   background-size: contain;
