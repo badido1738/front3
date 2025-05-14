@@ -123,8 +123,8 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
       console.log("Final payload:", payload);
 
       const url = initialData 
-        ? `http://localhost:8080/sa/${initialData.idAS}`
-        : "http://localhost:8080/sa";
+        ? `http://localhost:8080/stagiaires/${initialData.idAS}`
+        : "http://localhost:8080/stagiaires";
   
       const method = initialData ? "PUT" : "POST";
   

@@ -1,6 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../layout/Layout"; 
-import Home from "../pages/Home";
+import StatApp from "../pages/StatApp";
+import Month from "../pages/Month";
+import Etab from "../pages/Etab";
+import Dir from "../pages/Dir";
+import Enca from "../pages/Enca";
 import ProfilePage from "../pages/ProfilePage";
 import StagiairesPage from "../pages/StagiairesPage";
 import ApprentisPage from "../pages/ApprentisPage";
@@ -21,7 +25,8 @@ export default function AppRoutes() {
   return (
     <Layout>
       <Routes>
-        <Route index element={<Home />} />
+       <Route path="/" element={<Navigate to="/statistiques" replace />}/>
+        <Route path="/statistiques" element={<StatApp />} />
         <Route path="profile" element={<ProfilePage />} />
         
         {/* Routes pour stagiaires et apprentis */}
