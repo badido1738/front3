@@ -76,8 +76,11 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
       </button>
       <h1 className="header-title">Gestion des Stagiaires</h1>
       <div className="header-right">
-        {/* Notifications bell */}
-        <button className="notification-button">
+        {/* Notifications bell - Updated with onClick handler */}
+        <button 
+          className="notification-button"
+          onClick={() => navigate('/documents/circulation/notification')}
+        >
           <BellRing size={20} />
           <span className="notification-badge">3</span>
         </button>

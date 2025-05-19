@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import "../pages/page.css";
+//import "../form/StagiaireForm.css";
 
 const EnvoiPage = () => {
   const navigate = useNavigate();
@@ -143,51 +143,14 @@ const EnvoiPage = () => {
       </h1>
       
       <form onSubmit={handleSubmit}>
-        {/* Première ligne de 2 inputs */}
+        
+        {/* Deuxième ligne de 2 inputs */}
         <div className="envoi-form-row">
-          {/* Direction qui envoie le document */}
-          <div className="envoi-form-group">
-            <label htmlFor="directionEnvoi" className="envoi-form-label">
-              Direction qui envoie le document:
-            </label>
-            <select
-              id="directionEnvoi"
-              name="directionEnvoi"
-              value={formData.directionEnvoi}
-              onChange={handleChange}
-              className="envoi-form-select"
-            >
-              <option value="">Sélectionnez une direction</option>
-              {directionOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
-            </select>
-            {errors.directionEnvoi && (
-              <p className="envoi-form-error">{errors.directionEnvoi}</p>
-            )}
-            
-            {showAutreDirectionEnvoi && (
-              <div className="autre-direction-input">
-                <input
-                  type="text"
-                  id="autreDirectionEnvoi"
-                  name="autreDirectionEnvoi"
-                  value={formData.autreDirectionEnvoi}
-                  onChange={handleChange}
-                  placeholder="Précisez la direction d'envoi"
-                  className="envoi-form-input"
-                />
-                {errors.autreDirectionEnvoi && (
-                  <p className="envoi-form-error">{errors.autreDirectionEnvoi}</p>
-                )}
-              </div>
-            )}
-          </div>
-          
+          {/* Nom du stagiaire/apprenti */}
           {/* Nom du document */}
           <div className="envoi-form-group">
             <label htmlFor="nomDocument" className="envoi-form-label">
-              Nom du document:
+              Type du document:
             </label>
             <input
               type="text"
@@ -201,14 +164,10 @@ const EnvoiPage = () => {
               <p className="envoi-form-error">{errors.nomDocument}</p>
             )}
           </div>
-        </div>
-        
-        {/* Deuxième ligne de 2 inputs */}
-        <div className="envoi-form-row">
-          {/* Nom du stagiaire/apprenti */}
+
           <div className="envoi-form-group">
             <label htmlFor="nomStagiaire" className="envoi-form-label">
-              Nom du stagiaire/apprenti concerné:
+              Stagiaire/apprenti concerné:
             </label>
             <input
               type="text"
@@ -226,7 +185,7 @@ const EnvoiPage = () => {
           {/* Direction qui reçoit le document */}
           <div className="envoi-form-group">
             <label htmlFor="directionReception" className="envoi-form-label">
-              Direction qui reçoit le document:
+              Direction :
             </label>
             <select
               id="directionReception"
@@ -287,13 +246,6 @@ const EnvoiPage = () => {
             Envoyer 
           </button>
           
-          <button
-            type="button"
-            onClick={goToHistorique}
-            className="envoi-form-button envoi-button-historique"
-          >
-            Historique
-          </button>
         </div>
       </form>
     </div>

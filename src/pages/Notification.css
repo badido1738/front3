@@ -7,6 +7,58 @@
     align-items: center;
     margin-bottom: 25px;
   }
+  .notification-types {
+    display: flex;
+    margin-bottom: 25px;
+    gap: 15px;
+  }
+  
+  .notification-type-btn {
+    background-color: #2c83c3;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 8px rgba(44, 131, 195, 0.3);
+    min-width: 150px;
+    justify-content: center;
+  }
+  
+  .notification-type-btn:hover {
+    background-color: #1a6fb0;
+    box-shadow: 0 6px 12px rgba(44, 131, 195, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  .notification-type-btn:active {
+    transform: translateY(0);
+  }
+  
+  .notification-type-btn.active {
+    background-color: #155a8a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-bottom: 3px solid #0d3c5f;
+  }
+  
+  .notification-type-btn svg {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+  .status-confirmed {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
   
   .notifications-title {
     font-size: 1.8rem;
@@ -227,4 +279,40 @@
       width: 14px;
       height: 14px;
     }
+    .notification-types {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-type-btn {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  margin-right: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.notification-type-btn.active {
+  color: #2c83c3;
+  border-bottom: 2px solid #2c83c3;
+}
+
+.notification-type-btn svg {
+  margin-right: 5px;
+}
+
+.status-confirmed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
   }

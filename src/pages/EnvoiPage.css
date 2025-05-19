@@ -1,0 +1,247 @@
+/* EnvoiPage.css - Style moderne pour le formulaire d'envoi de document */
+
+:root {
+    --primary-color: #4361ee;
+    --primary-hover: #3a56d4;
+    --secondary-color: #4f5d75;
+    --accent-color: #ef476f;
+    --error-color: #e63946;
+    --success-color: #06d6a0;
+    --background-color: #f7f7f9;
+    --card-background: #ffffff;
+    --text-color: #2b2d42;
+    --text-light: #6c757d;
+    --border-color: #e9ecef;
+    --border-radius: 12px;
+    --input-radius: 8px;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Conteneur principal */
+  .envoi-container {
+    width: 100%;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-color);
+  }
+  
+  /* Carte du formulaire */
+  .envoi-card {
+    width: 100%;
+    max-width: 1000px;
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 2.5rem;
+    margin-top: 2rem;
+  }
+  
+  /* Titre du formulaire */
+  .envoi-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    text-align: center;
+    position: relative;
+    padding-bottom: 1rem;
+  }
+  
+  .envoi-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+  }
+  
+  /* Disposition des rangées du formulaire */
+  .envoi-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .three-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 992px) {
+    .three-columns {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .three-columns {
+      grid-template-columns: 1fr;
+    }
+    
+    .envoi-card {
+      padding: 1.5rem;
+    }
+  }
+  
+  /* Groupes de formulaire */
+  .envoi-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+  
+  /* Labels du formulaire */
+  .envoi-form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+  }
+  
+  /* Champs de saisie */
+  .envoi-form-input,
+  .envoi-form-select,
+  .envoi-form-textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--input-radius);
+    background-color: #f8fafc;
+    font-size: 1rem;
+    outline: none;
+    transition: var(--transition);
+    width: 100%;
+  }
+  
+  .envoi-form-input:focus,
+  .envoi-form-select:focus,
+  .envoi-form-textarea:focus {
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+  
+  .envoi-form-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
+  /* Style pour le champ Autre direction */
+  .autre-direction-input {
+    margin-top: 0.75rem;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  /* Messages d'erreur */
+  .envoi-form-error {
+    color: var(--error-color);
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+    font-weight: 500;
+  }
+  
+  /* Boutons */
+  .envoi-form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .envoi-button {
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--input-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .envoi-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .envoi-button.primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+  }
+  
+  .envoi-button.secondary {
+    background-color: #eef0f8;
+    color: var(--secondary-color);
+  }
+  
+  .envoi-button.secondary:hover {
+    background-color: #e3e7f5;
+    color: var(--primary-color);
+  }
+  
+  /* Animation pour les éléments qui apparaissent */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Ajouter un style de focus amélioré pour l'accessibilité */
+  input:focus, select:focus, textarea:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+  }
+  
+  /* Style pour les sélecteurs */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 8.5L1.5 4 2.5 3 6 6.5 9.5 3 10.5 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+  
+  /* Styles pour les états des champs */
+  .envoi-form-input:disabled,
+  .envoi-form-select:disabled,
+  .envoi-form-textarea:disabled {
+    background-color: #f0f1f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  /* Animations subtiles pour améliorer l'UX */
+  .envoi-card {
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

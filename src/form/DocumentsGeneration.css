@@ -96,7 +96,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #3498db;
+  background: #e76903;
   color: white;
   border: none;
   border-radius: 4px;
@@ -106,7 +106,7 @@
 }
 
 .generate-btn:hover {
-  background: #2980b9;
+  background: #c95b02;
 }
 
 .generate-btn:disabled {
@@ -277,7 +277,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #3498db;
+  background: #e76903;
   color: white;
   border: none;
   border-radius: 4px;
@@ -289,7 +289,7 @@
 }
 
 .generate-btn:hover {
-  background: #2980b9;
+  background: #c95c02;
   transform: translateY(-2px);
 }
 
@@ -428,7 +428,7 @@
 }
 
 .generate-btn {
-  background: linear-gradient(45deg, #1a73e8, #0d47a1);
+  background: linear-gradient(45deg, #e76903, #be5702);
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -445,7 +445,7 @@
 .generate-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(26, 115, 232, 0.3);
-  background: linear-gradient(45deg, #1557b0, #0a3880);
+  background: linear-gradient(45deg, #ad5309, #bd6014);
 }
 
 .generate-btn:active:not(:disabled) {

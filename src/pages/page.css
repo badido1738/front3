@@ -367,12 +367,16 @@ button:active {
   }
   
   .envoi-button-submit {
-    background-color: #27ae60;
+    background-color: #e76903;
     color: white;
+    text-align: center; /* Centers the text horizontally */
+    display: flex;
+    justify-content: center; /* Centers content horizontally (flex) */
+    align-items: center; /* Centers content vertically (flex) */
   }
   
   .envoi-button-submit:hover {
-    background-color: #2ecc71;
+    background-color: #b35000;
   }
   
   .envoi-button-historique {
