@@ -139,7 +139,7 @@ const EnvoiPage = () => {
   return (
     <div className="envoi-page-container">
       <h1 className="envoi-page-title">
-        Envoi de Document
+        Signaler l'envoi d'un document
       </h1>
       
       <form onSubmit={handleSubmit}>

@@ -132,9 +132,7 @@ const NotificationPage = () => {
   return (
     <div className="page-container">
       <div className="notifications-header">
-        <h2 className="notifications-title">
-          <FaBell className="notification-icon" /> Notifications de documents
-        </h2>
+
         <div className="notification-types">
           <button
             className={`notification-type-btn ${notificationType === 'received' ? 'active' : ''}`}
