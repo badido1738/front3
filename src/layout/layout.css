@@ -596,3 +596,217 @@ body, html {
 .menu-item, .submenu-item {
   justify-content: start;
 }
+
+/* Add these styles to your layout.css file */
+
+/* Header enhancements */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 60px;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.header.scrolled {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Notification Button */
+.notification-button {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: #555;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #e53935;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* User Button and Dropdown */
+.user-dropdown-container {
+  position: relative;
+}
+
+.user-button {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.user-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #3f51b5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.username {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 0.7rem;
+  color: #666;
+  text-transform: uppercase;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 220px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+  animation: dropdown-appear 0.2s ease;
+}
+
+@keyframes dropdown-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 1rem;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-username {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.dropdown-role {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item.logout {
+  color: #e53935;
+}
+
+.dropdown-item.logout:hover {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+/* Menu button (hamburger) */
+.menu-button {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.menu-icon {
+  color: #555;
+}

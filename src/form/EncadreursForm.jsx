@@ -106,7 +106,7 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
               <input type="hidden" name="idEncd" value={formData.idEncd} />
             )}
             
-            <div className="form-group">
+        {/*   <div className="form-group">
               <label>Nom :</label>
               <input 
                 type="text" 
@@ -156,7 +156,7 @@ function EncadreursForm({ initialData, onSubmit, onCancel }) {
                 value={formData.fonction} 
                 onChange={handleChange} 
               />
-            </div>
+            </div>  */}
 
             <div className="form-group">
               <label>E-mail :</label>
