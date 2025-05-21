@@ -37,15 +37,41 @@ function ThemesPage() {
   
   const [editingTheme, setEditingTheme] = useState(null);
 
-  useEffect(() => {
-    fetch('http://localhost:8080/themes')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setThemes(data);
-      })
-  }, []);
+useEffect(() => {
+  const fetchThemes = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/themes', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setThemes(data);
+    } catch (error) {
+      console.error("Error fetching themes:", error);
+      // Optionally show error to user
+    }
+  };
+
+  fetchThemes();
+}, []);
 
   // Icônes SVG intégrées
   const iconView = (
@@ -74,25 +100,46 @@ function ThemesPage() {
     </svg>
   );
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce thème ?")) {
-      try {
-        const response = await fetch(`http://localhost:8080/themes/${id}`, {
-          method: "DELETE",
-        });
-  
-        if (response.ok) {
-          setThemes(themes.filter(theme => theme.idTheme !== id));
-          console.log("Thème supprimé avec succès");
-        } else {
-          const errorText = await response.text();
-          console.error("Erreur lors de la suppression :", errorText);
-        }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
+const handleDelete = async (id) => {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer ce thème ?")) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
       }
+
+      const response = await fetch(`http://localhost:8080/themes/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setThemes(themes.filter(theme => theme.idTheme !== id));
+        console.log("Thème supprimé avec succès");
+        // Optional: Show success notification
+        alert("Thème supprimé avec succès");
+      } else {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || "Erreur lors de la suppression (Peut etre theme affecté a un stage existant)";
+        console.error("Erreur lors de la suppression :", errorMessage);
+        alert(`Erreur: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
+      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
     }
-  };
+  }
+};
 
   const handleEdit = (theme) => {
     setEditingTheme(theme);

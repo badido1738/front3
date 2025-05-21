@@ -6,79 +6,145 @@ function StageForm({ initialData, onSubmit, onCancel }) {
     idStage: "",
     dateDebut: "",
     dateFin: "",
-    duree: "",
-    jourDeRecep: [], // Initialiser comme tableau vide
-    typeDePC: [],    // Initialiser comme tableau vide
+    jourDeRecep: [],
+    typeDePC: [],
     type: "",
     idDirection: "",
     idEncd: "",
-    idTheme: "",
-    titre: ""
+    idTheme: ""
   });
 
   const [directions, setDirections] = useState([]);
   const [encadrants, setEncadrants] = useState([]);
   const [themes, setThemes] = useState([]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   useEffect(() => {
-    fetch("http://localhost:8080/themes")
-      .then((res) => res.json())
-      .then((data) => setThemes(data))
-      .catch((err) => console.error("Erreur lors du chargement des thèmes :", err));
+    const fetchThemes = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch("http://localhost:8080/themes", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setThemes(data);
+      } catch (err) {
+        console.error("Erreur lors du chargement des thèmes :", err);
+      }
+    };
+
+    fetchThemes();
   }, []);
-  
+
   useEffect(() => {
-    fetch("http://localhost:8080/encadrants")
-      .then((res) => res.json())
-      .then((data) => setEncadrants(data))
-      .catch((err) => console.error("Erreur lors du chargement des encadrants :", err));
+    const fetchEncadrants = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch("http://localhost:8080/encadrants", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setEncadrants(data);
+      } catch (err) {
+        console.error("Erreur lors du chargement des encadrants :", err);
+      }
+    };
+
+    fetchEncadrants();
   }, []);
-  
+
   useEffect(() => {
-    fetch("http://localhost:8080/directions")
-      .then((res) => res.json())
-      .then((data) => setDirections(data))
-      .catch((err) => console.error("Erreur lors du chargement des directions :", err));
+    const fetchDirections = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch("http://localhost:8080/directions", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setDirections(data);
+      } catch (err) {
+        console.error("Erreur lors du chargement des directions :", err);
+      }
+    };
+
+    fetchDirections();
   }, []);
-  
-  // Initialiser le formulaire avec les données existantes pour modification
+
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
         jourDeRecep: initialData.jourDeRecep ? initialData.jourDeRecep.split(',') : [],
         typeDePC: initialData.typeDePC ? initialData.typeDePC.split(',') : [],
-        idEncd: initialData.idEncd || "",
-        idTheme: initialData.idTheme || "",
-        titre: initialData.titre || ""
+        idEncd: initialData.encadrant?.idEncd || "",
+        idTheme: initialData.theme?.idTheme || "",
+        idDirection: initialData.direction?.idDirection || "",
+        idStage: initialData.idStage || initialData.idAS || ""
       });
     }
   }, [initialData]);
 
-  const handleChange = (e) => {
-    if (e.target.name === "idTheme") {
-      const selectedThemeId = e.target.value;
-      const selectedTheme = themes.find(theme => theme.idTheme == selectedThemeId);
-      
-      setFormData({ 
-        ...formData, 
-        idTheme: selectedThemeId,
-        titre: selectedTheme ? selectedTheme.titre : "" 
-      });
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const action = initialData ? "modifier" : "ajouter";
     if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stage ?`)) {
       return;
     }
-  
+
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
       const payload = {
         ...formData,
         jourDeRecep: formData.jourDeRecep.join(','),
@@ -88,38 +154,39 @@ function StageForm({ initialData, onSubmit, onCancel }) {
         idTheme: undefined,
         direction: formData.idDirection ? { idDirection: formData.idDirection } : null,
         encadrant: formData.idEncd ? { idEncd: formData.idEncd } : null,
-        theme: formData.idTheme ? { idTheme: formData.idTheme } : null,
-        titre: formData.titre // Ajout du titre dans le payload
+        theme: formData.idTheme ? { idTheme: formData.idTheme } : null
       };
 
-      console.log("Final payload:", payload); 
-
       const url = initialData 
-        ? `http://localhost:8080/stages/${initialData.idAS}`
+        ? `http://localhost:8080/stages/${formData.idStage}`
         : "http://localhost:8080/stages";
-  
+
       const method = initialData ? "PUT" : "POST";
-  
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
-        console.log(`Stage ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
         onSubmit(data);
-        
         if (window.confirm(`Stage ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
           window.location.reload();
         }
       } else {
-        const errorText = await response.text();
-        console.error("Erreur lors de l'envoi:", errorText);
-        alert(`Erreur: ${errorText}`);
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || "Erreur lors de l'opération";
+        alert(`Erreur: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Erreur réseau:", error);
@@ -130,7 +197,6 @@ function StageForm({ initialData, onSubmit, onCancel }) {
   return (
     <div className="form-container">
       <div className="form-card">
-        {/* En-tête de formulaire avec l'icône X de fermeture */}
         <div className="form-app-header">
           <h2>{initialData ? "Modifier un stage" : "Ajouter un stage"}</h2>
           <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
@@ -143,6 +209,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
             {initialData && (
               <input type="hidden" name="idStage" value={formData.idStage} />
             )}
+
 
             <div className="form-group">
               <label>Date de Début :</label>
@@ -165,6 +232,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange}
               />
             </div>
+
 
             <div className="form-group"> 
               <label>Jours de Réception :</label>

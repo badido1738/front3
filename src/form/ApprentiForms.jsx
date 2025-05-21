@@ -256,13 +256,12 @@ const handleSubmit = async (e) => {
               <select 
                 name="type" 
                 className="form-select"
-                //required 
                 value={formData.type} 
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le type -</option>
-                <option value="Stage Pratique">Stage Pratique</option>
-                <option value="Stage PFE">Stage PFE</option>
+                <option value="Stagiaire">Stagiaire</option>
+                <option value="Apprentis">Apprentis</option>
               </select>
             </div>
 
@@ -271,15 +270,14 @@ const handleSubmit = async (e) => {
               <select 
                 name="niveauEtude" 
                 className="form-select"
-                //required 
                 value={formData.niveauEtude} 
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le niveau -</option>
-                <option value="Bac">Bac</option>
-                <option value="Licence">Licence</option>
-                <option value="Master">Master</option>
-                <option value="Doctorat">Doctorat</option>
+                <option value="premiére">premiére</option>
+                <option value="troisiéme">troisiéme</option>
+                <option value="quatrieme">quatrieme</option>
+                <option value="cinquéme">cinquéme</option>
               </select>
             </div>
 

@@ -47,18 +47,36 @@ function StagePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("type");
 
-  useEffect(() => {
-    fetch('http://localhost:8080/stages')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setStages(data);
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des stages:", error);
-      })
-  }, [])
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  
+  fetch('http://localhost:8080/stages', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    if (!res.ok) {
+      // Si le statut est 401 Unauthorized ou 403 Forbidden
+      if (res.status === 401 || res.status === 403) {
+        // Supprimer le token invalide/expiré
+        localStorage.removeItem('token');
+        // Rediriger vers la page de login
+        window.location.href = '/login';
+      }
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    return res.json();
+  })
+  .then(data => {
+    setStages(data);
+  })
+  .catch(error => {
+    console.error("Erreur lors de la récupération des stages:", error);
+    // Gestion supplémentaire des erreurs si nécessaire
+  });
+}, []);
 
   // Icônes SVG intégrées
   const iconView = (
@@ -87,25 +105,38 @@ function StagePage() {
     </svg>
   );
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stage ?")) {
-      try {
-        const response = await fetch(`http://localhost:8080/stages/${id}`, {
-          method: "DELETE",
-        });
-  
-        if (response.ok) {
-          setStages(stages.filter(stage => stage.idStage !== id));
-          console.log("Stage supprimé avec succès");
-        } else {
-          const errorText = await response.text();
-          console.error("Erreur lors de la suppression :", errorText);
+const handleDelete = async (id) => {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stage ?")) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8080/stages/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
+      });
+
+      if (response.ok) {
+        setStages(stages.filter(stage => stage.idStage !== id));
+        alert("Stage supprimé avec succès");
+      } else if (response.status === 409 || response.status === 500 ) { // Conflict - cas de contrainte d'intégrité
+        const errorData = await response.json();
+        alert(`Impossible de supprimer : ${errorData.message || 
+              "Ce stage est lié à des stagiaires. Supprimez d'abord les stagiaires associés."}`);
+      } else if (response.status === 401 || response.status === 403) {
+        // Gestion des erreurs d'authentification
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      } else {
+        throw new Error(`Erreur HTTP: ${response.status}`);
       }
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Une erreur est survenue lors de la suppression");
     }
-  };
+  }
+};
 
   const handleEdit = (stage) => {
     setEditingStage(stage);

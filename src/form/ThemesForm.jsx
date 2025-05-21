@@ -21,51 +21,65 @@ function ThemesForm({ initialData, onSubmit, onCancel }) {
     }
   }, [initialData]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+const handleChange = (e) => {
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const action = initialData ? "modifier" : "ajouter";
-    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce theme ?`)) {
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const action = initialData ? "modifier" : "ajouter";
+  if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce theme ?`)) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
       return;
     }
-  
-    try {
-      const url = initialData 
-        ? `http://localhost:8080/themes/${initialData.idTheme}`
-        : "http://localhost:8080/themes";
-  
-      const method = initialData ? "PUT" : "POST";
-  
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Theme ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
-        onSubmit(data);
-        
-        if (window.confirm(`Theme ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
-          window.location.reload();
-        }
-      } else {
-        const errorText = await response.text();
-        console.error("Erreur lors de l'envoi:", errorText);
-        alert(`Erreur: ${errorText}`);
+
+    const url = initialData 
+      ? `http://localhost:8080/themes/${initialData.idTheme}`
+      : "http://localhost:8080/themes";
+
+    const method = initialData ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Theme ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+      onSubmit(data);
+      
+      if (window.confirm(`Theme ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+        window.location.reload();
       }
-    } catch (error) {
-      console.error("Erreur réseau:", error);
-      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+    } else {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+        return;
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || "Erreur lors de l'opération";
+      console.error("Erreur lors de l'envoi:", errorMessage);
+      alert(`Erreur: ${errorMessage}`);
     }
-  };
+  } catch (error) {
+    console.error("Erreur réseau:", error);
+    alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+  }
+};
 
   return (
     <div className="form-container">
