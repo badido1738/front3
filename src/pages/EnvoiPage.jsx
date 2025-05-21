@@ -149,36 +149,78 @@ const EnvoiPage = () => {
           {/* Nom du stagiaire/apprenti */}
           {/* Nom du document */}
           <div className="envoi-form-group">
-            <label htmlFor="nomDocument" className="envoi-form-label">
-              Type du document:
+            <label htmlFor="directionReception" className="envoi-form-label">
+              Type du document :
             </label>
-            <input
-              type="text"
-              id="nomDocument"
-              name="nomDocument"
-              value={formData.nomDocument}
+            <select
+              id="directionReception"
+              name="directionReception"
+              value={formData.directionReception}
               onChange={handleChange}
-              className="envoi-form-input"
-            />
-            {errors.nomDocument && (
-              <p className="envoi-form-error">{errors.nomDocument}</p>
+              className="envoi-form-select"
+            >
+              <option value="">Sélectionnez type du document</option>
+              {directionOptions.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
+              ))}
+            </select>
+            {errors.directionReception && (
+              <p className="envoi-form-error">{errors.directionReception}</p>
+            )}
+            
+            {showAutreDirectionReception && (
+              <div className="autre-direction-input">
+                <input
+                  type="text"
+                  id="autreDirectionReception"
+                  name="autreDirectionReception"
+                  value={formData.autreDirectionReception}
+                  onChange={handleChange}
+                  placeholder="Précisez la direction de réception"
+                  className="envoi-form-input"
+                />
+                {errors.autreDirectionReception && (
+                  <p className="envoi-form-error">{errors.autreDirectionReception}</p>
+                )}
+              </div>
             )}
           </div>
 
           <div className="envoi-form-group">
-            <label htmlFor="nomStagiaire" className="envoi-form-label">
-              Stagiaire/apprenti concerné:
+            <label htmlFor="directionReception" className="envoi-form-label">
+              Stagiaire/Apprenti :
             </label>
-            <input
-              type="text"
-              id="nomStagiaire"
-              name="nomStagiaire"
-              value={formData.nomStagiaire}
+            <select
+              id="directionReception"
+              name="directionReception"
+              value={formData.directionReception}
               onChange={handleChange}
-              className="envoi-form-input"
-            />
-            {errors.nomStagiaire && (
-              <p className="envoi-form-error">{errors.nomStagiaire}</p>
+              className="envoi-form-select"
+            >
+              <option value="">Sélectionnez le stagiaire ou l'apprenti</option>
+              {directionOptions.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
+              ))}
+            </select>
+            {errors.directionReception && (
+              <p className="envoi-form-error">{errors.directionReception}</p>
+            )}
+            
+            {showAutreDirectionReception && (
+              <div className="autre-direction-input">
+                <input
+                  type="text"
+                  id="autreDirectionReception"
+                  name="autreDirectionReception"
+                  value={formData.autreDirectionReception}
+                  onChange={handleChange}
+                  placeholder="Précisez la direction de réception"
+                  className="envoi-form-input"
+                />
+                {errors.autreDirectionReception && (
+                  <p className="envoi-form-error">{errors.autreDirectionReception}</p>
+                )}
+              </div>
             )}
           </div>
           

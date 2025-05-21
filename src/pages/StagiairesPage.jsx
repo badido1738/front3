@@ -13,18 +13,18 @@ function StagiairesPage() {
   const [stagiaires, setStagiaires] = useState([
     {
       idAS: 1,
-      nom: "Dubois",
-      prenom: "Marie",
-      idStage: "12345",
+      nom: "Rahli",
+      prenom: "Mohamed",
+      idStage: "12",
       idSpecialite: "Mécanique"
       
     },
     {
       idAS: 2,
-      nom: "Leroy",
-      prenom: "Thomas",
-      idStage: "67890",
-      idSpecialite: "Génie Civil"
+      nom: "Bouali",
+      prenom: "Asma",
+      idStage: "6",
+      idSpecialite: "Informatique"
     }
   ]);
 

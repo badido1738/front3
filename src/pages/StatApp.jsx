@@ -18,11 +18,11 @@ function StatApp() {
         marginBottom: '24px',
         flexWrap: 'wrap'
       }}>
-        <StatCard number="208" label="Utilisateurs" color="#5352ed" />
-        <StatCard number="85" label="Total stagiaires" color="#4b7bec" />
-        <StatCard number="48" label="Total appentis" color="#3867d6" />
-        <StatCard number="72" label="Stagiaires du jour" color="#8c7ae6" />
-        <StatCard number="72" label="Apprentis du jour" color="#8c7ae8" />
+        <StatCard number="04" label="Utilisateurs" color="#5352ed" />
+        <StatCard number="7" label="Total stagiaires" color="#4b7bec" />
+        <StatCard number="10" label="Total appentis" color="#3867d6" />
+        <StatCard number="03" label="Stagiaires du jour" color="#8c7ae6" />
+        <StatCard number="04" label="Apprentis du jour" color="#8c7ae8" />
       </div>
 
       {/* Charts Section */}
