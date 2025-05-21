@@ -40,18 +40,42 @@ function ProfilePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("username");
 
-  useEffect(() => {
-    fetch('http://localhost:8080/utilisateurs')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setProfiles(data);
-      })
-      .catch(error => {
-        console.error("Erreur lors de la récupération des profils:", error);
-      })
-  }, [])
+useEffect(() => {
+  const fetchProfiles = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const response = await fetch('http://localhost:8080/utilisateurs', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setProfiles(data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des profils:", error);
+      // Optionally show error to user
+      alert("Erreur lors du chargement des profils. Veuillez réessayer.");
+    }
+  };
+
+  fetchProfiles();
+}, []);
 
   // Icônes SVG intégrées
   const iconView = (
@@ -80,25 +104,45 @@ function ProfilePage() {
     </svg>
   );
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce profil ?")) {
-      try {
-        const response = await fetch(`http://localhost:8080/utilisateurs/${id}`, {
-          method: "DELETE",
-        });
-  
-        if (response.ok) {
-          setProfiles(profiles.filter(profile => profile.idUser !== id));
-          console.log("Profil supprimé avec succès");
-        } else {
-          const errorText = await response.text();
-          console.error("Erreur lors de la suppression :", errorText);
-        }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
+const handleDelete = async (id) => {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer ce profil ?")) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
       }
+
+      const response = await fetch(`http://localhost:8080/utilisateurs/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setProfiles(profiles.filter(profile => profile.idUser !== id));
+        console.log("Profil supprimé avec succès");
+        alert("Profil supprimé avec succès");
+      } else {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || "Erreur lors de la suppression du profil";
+        console.error("Erreur lors de la suppression :", errorMessage);
+        alert(`Erreur: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
+      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
     }
-  };
+  }
+};
 
   const handleEdit = (profile) => {
     setEditingProfile(profile);

@@ -6,19 +6,11 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
     idUser: "",
     username: "",
     role: "",
-    motDePasse: "",
-    idEmp: "",
+    motDePasse: ""
   });
 
-  const [employes, setEmployes] = useState([]);
 
-  // 🔄 Récupération des employés
-  useEffect(() => {
-    fetch("http://localhost:8080/employes")
-      .then((res) => res.json())
-      .then((data) => setEmployes(data))
-      .catch((err) => console.error("Erreur lors du chargement des employés:", err));
-  }, []);
+
 
   // Initialiser le formulaire avec les données existantes pour modification
   useEffect(() => {
@@ -34,56 +26,87 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const action = initialData ? "modifier" : "ajouter";
-    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce profile ?`)) {
-      return;
-    }
-  
-    try {
-      const payload = {
-        ...formData,
-        employe: { idEmp: formData.idEmp }
-      };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      console.log("Final payload:", payload);
+  const action = initialData ? "modifier" : "ajouter";
+  if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce profil ?`)) {
+    return;
+  }
 
-      const url = initialData 
-        ? `http://localhost:8080/utilisateurs/${initialData.idUser}`
-        : "http://localhost:8080/utilisateurs";
-  
-      const method = initialData ? "PUT" : "POST";
-  
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      console.log(formData);
+  try {
+    const payload = {
+      ...formData
+    };
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Profile ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+    console.log("Final payload:", payload);
+
+    const url = initialData 
+      ? `http://localhost:8080/utilisateurs/${initialData.idUser}`
+      : "http://localhost:8080/auth/register";
+
+    const method = initialData ? "PUT" : "POST";
+
+    const headers = {
+      "Content-Type": "application/json",
+      ...(initialData && {
+        "Authorization": `Bearer ${localStorage.getItem('token')}`
+      })
+    };
+
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    // First check if response is successful (status 200-299)
+    if (response.ok) {
+      try {
+        // Try to parse JSON only if there's content
+        const data = response.status !== 204 ? await response.json() : null;
+        
+        console.log(`Profil ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+        
+        // Clear success message
+        alert(`Profil ${initialData ? "modifié" : "ajouté"} avec succès!`);
+        
         onSubmit(data);
         
-        if (window.confirm(`Profile ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+        if (window.confirm(`Voulez-vous actualiser la page ?`)) {
           window.location.reload();
         }
-      } else {
-        const errorText = await response.text();
-        console.error("Erreur lors de l'envoi:", errorText);
-        alert(`Erreur: ${errorText}`);
+      } catch (jsonError) {
+        // This handles cases where response is OK but has no JSON body
+        console.log(`Operation succeeded but no data returned`);
+        alert(`Profil ${initialData ? "modifié" : "ajouté"} avec succès!`);
+        onSubmit({});
       }
-    } catch (error) {
-      console.error("Erreur réseau:", error);
-      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+    } else {
+      // Handle error cases
+      try {
+        const errorData = await response.json();
+        const errorMessage = errorData.message || 
+                           errorData.error ||
+                           `Erreur ${response.status}: ${response.statusText}`;
+        
+        console.error("Erreur serveur:", errorMessage);
+        alert(`Erreur: ${errorMessage}`);
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
+      } catch (parseError) {
+        console.error("Erreur lors de la lecture de la réponse:", parseError);
+        alert(`Erreur technique. Code: ${response.status}`);
+      }
     }
-  };
+  } catch (networkError) {
+    console.error("Erreur réseau:", networkError);
+    alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+  }
+};
 
   return (
     <div className="form-container">
@@ -124,9 +147,9 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le role -</option>
-                <option value="admin">directeur</option>
-                <option value="agent de circulation">Agent de circulation</option>
-                <option value="sous-admin">assistant</option>
+                <option value="ROLE_admin">Admin</option>
+                <option value="ROLE_sousAdmin">Sous-Admin</option>
+                <option value="ROLE_agentCirculation">Agent de Circulation</option>
               </select>
             </div>
 
@@ -143,22 +166,6 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
               />
             </div>
 
-            <div className="form-group">
-              <label>Employé :</label>
-              <select
-                name="idEmp"
-                className="form-select"
-                value={formData.idEmp}
-                onChange={handleChange}
-              >
-                <option value="">- Sélectionner un employé -</option>
-                {employes.map((emp) => (
-                  <option key={emp.idEmp} value={emp.idEmp}>
-                    {emp.nom} {emp.prenom} — {emp.poste}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           <div className="form-buttons">
