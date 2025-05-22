@@ -19,39 +19,53 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
   const [etablissements, setEtablissements] = useState([]);
   const [specialites, setSpecialites] = useState([]);
 
+  const authFetch = async (url, options = {}) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/login';
+      throw new Error('No authentication token');
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        window.location.href = '/login';
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response;
+  };
+
   useEffect(() => {
     const fetchSpecialites = async () => {
       try {
-        const response = await fetch("http://localhost:8080/specialites");
-        
-        if (!response.ok) {
-          throw new Error("Échec du chargement des spécialités");
-        }
-        
+        const response = await authFetch("http://localhost:8080/specialites");
         const data = await response.json();
-        console.log("Specialites data:", data);
         setSpecialites(data);
       } catch (err) {
-      } finally {
+        console.error("Error fetching specialites:", err);
       }
     };
-
     fetchSpecialites();
   }, []);
 
   useEffect(() => {
     const fetchEtablissements = async () => {
       try {
-        const response = await fetch("http://localhost:8080/etablissements");
-        
-        if (!response.ok) {
-          throw new Error("Échec du chargement des établissements");
-        }
-        
+        const response = await authFetch("http://localhost:8080/etablissements");
         const data = await response.json();
         setEtablissements(data);
-
       } catch (err) {
+        console.error("Error fetching etablissements:", err);
       }
     };
     fetchEtablissements();
@@ -60,18 +74,13 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
   useEffect(() => {
     const fetchStages = async () => {
       try {
-        const response = await fetch("http://localhost:8080/stages");
-        if (response.ok) {
-          const data = await response.json();
-          setStages(data);
-        } else {
-          console.error("Erreur lors de la récupération des stages");
-        }
+        const response = await authFetch("http://localhost:8080/stages");
+        const data = await response.json();
+        setStages(data);
       } catch (error) {
-        console.error("Erreur réseau:", error);
+        console.error("Error fetching stages:", error);
       }
     };
-
     fetchStages();
   }, []);
 
@@ -97,63 +106,57 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const action = initialData ? "modifier" : "ajouter";
-    if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stagiaire ?`)) {
-      return;
-    }
-  
-    try {
-      // Préparer les données à envoyer avec les bons formats d'ID
-      const payload = {
-        nom: formData.nom,
-        prenom: formData.prenom,
-        dateN: formData.dateN,
-        numTel: formData.numTel,
-        type: formData.type,
-        email: formData.email,
-        niveauEtude: formData.niveauEtude,
-        stage: formData.idStage ? { idStage: formData.idStage } : null,
-        etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
-        specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null
-      };
-            
-      console.log("Final payload:", payload);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      const url = initialData 
-        ? `http://localhost:8080/stagiaires/${initialData.idAS}`
-        : "http://localhost:8080/stagiaires";
-  
-      const method = initialData ? "PUT" : "POST";
-  
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
-        onSubmit(data);
-        
-        if (window.confirm(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
-          window.location.reload();
-        }
-      } else {
-        const errorText = await response.text();
-        console.error("Erreur lors de l'envoi:", errorText);
-        alert(`Erreur: ${errorText}`);
-      }
-    } catch (error) {
-      console.error("Erreur réseau:", error);
-      alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
+  const action = initialData ? "modifier" : "ajouter";
+  if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stagiaire ?`)) {
+    return;
+  }
+
+  try {
+    const payload = {
+      nom: formData.nom,
+      prenom: formData.prenom,
+      dateN: formData.dateN,
+      numTel: formData.numTel,
+      type: formData.type,
+      email: formData.email,
+      niveauEtude: formData.niveauEtude,
+      stage: formData.idStage ? { idStage: formData.idStage } : null,
+      etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
+      specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null
+    };
+
+    const url = initialData
+      ? `http://localhost:8080/stagiaires/${initialData.idAS}`
+      : "http://localhost:8080/stagiaires";
+
+    const method = initialData ? "PUT" : "POST";
+
+    const response = await authFetch(url, {
+      method,
+      body: JSON.stringify(payload),
+    });
+
+    let data = null;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
     }
-  };
+
+    console.log(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+    onSubmit(data);
+
+    if (window.confirm(`Stagiaire ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+      window.location.reload();
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    alert(`Erreur: ${error.message}`);
+  }
+};
+
 
   return (
     <div className="form-container">

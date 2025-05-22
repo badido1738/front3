@@ -3,48 +3,162 @@ import "../form/form.css";
 
 function ApprentiForms({ initialData, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
-    idApprenti: "",
     nom: "",
     prenom: "",
-    dateNaissance: "",
-    telephone: "",
+    dateN: "",
+    numTel: "",
     type: "",
-    numeroCCP: "",
     email: "",
     niveauEtude: "",
-    numeroStage: "",
-    specialite: "",
+    idStage: "",
+    idEtab: "",
+    idspecialite: ""
   });
+
+    const [stages, setStages] = useState([]);
+    const [etablissements, setEtablissements] = useState([]);
+    const [specialites, setSpecialites] = useState([]);
+
+      const authFetch = async (url, options = {}) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/login';
+          throw new Error('No authentication token');
+        }
+    
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+    
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            window.location.href = '/login';
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    
+        return response;
+      };
+    
+      useEffect(() => {
+        const fetchSpecialites = async () => {
+          try {
+            const response = await authFetch("http://localhost:8080/specialites");
+            const data = await response.json();
+            setSpecialites(data);
+          } catch (err) {
+            console.error("Error fetching specialites:", err);
+          }
+        };
+        fetchSpecialites();
+      }, []);
+    
+      useEffect(() => {
+        const fetchEtablissements = async () => {
+          try {
+            const response = await authFetch("http://localhost:8080/etablissements");
+            const data = await response.json();
+            setEtablissements(data);
+          } catch (err) {
+            console.error("Error fetching etablissements:", err);
+          }
+        };
+        fetchEtablissements();
+      }, []);
+    
+      useEffect(() => {
+        const fetchStages = async () => {
+          try {
+            const response = await authFetch("http://localhost:8080/stages");
+            const data = await response.json();
+            setStages(data);
+          } catch (error) {
+            console.error("Error fetching stages:", error);
+          }
+        };
+        fetchStages();
+      }, []);
+    
 
   // Initialiser le formulaire avec les données existantes pour modification
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
-        // Assurez-vous que toutes les propriétés nécessaires sont présentes
-        idApprenti: initialData.idApprenti || "",
         nom: initialData.nom || "",
         prenom: initialData.prenom || "",
-        dateNaissance: initialData.dateNaissance || "",
-        telephone: initialData.telephone || "",
-        type: initialData.type || "",
-        numeroCCP: initialData.numeroCCP || "",
+        dateN: initialData.dateN|| "",
+        numTel: initialData.numTel || "",
         email: initialData.email || "",
         niveauEtude: initialData.niveauEtude || "",
-        numeroStage: initialData.numeroStage || "",
-        specialite: initialData.specialite || "",
+        type: initialData.type || "",
+        idStage: initialData.stage?.idStage || "",
+        idEtab: initialData.etablissement?.idEtab || "",
+        idspecialite: initialData.specialite?.idspecialite || ""
       });
     }
   }, [initialData]);
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const action = initialData ? "modifier" : "ajouter";
+  if (!window.confirm(`Êtes-vous sûr de vouloir ${action} cet apprenti ?`)) {
+    return;
+  }
+
+  try {
+    const payload = {
+      nom: formData.nom,
+      prenom: formData.prenom,
+      dateN: formData.dateN,
+      numTel: formData.numTel,
+      type: formData.type,
+      email: formData.email,
+      niveauEtude: formData.niveauEtude,
+      stage: formData.idStage ? { idStage: formData.idStage } : null,
+      etablissement: formData.idEtab ? { idEtab: formData.idEtab } : null,
+      specialite: formData.idspecialite ? { idspecialite: formData.idspecialite } : null
+    };
+
+    const url = initialData
+      ? `http://localhost:8080/apprentis/${initialData.idAS}`
+      : "http://localhost:8080/apprentis";
+
+    const method = initialData ? "PUT" : "POST";
+
+    const response = await authFetch(url, {
+      method,
+      body: JSON.stringify(payload),
+    });
+
+    let data = null;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    }
+
+    console.log(`Apprenti ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
+    onSubmit(data);
+
+    if (window.confirm(`Apprenti ${initialData ? "modifié" : "ajouté"} avec succès! Actualiser la page ?`)) {
+      window.location.reload();
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    alert(`Erreur: ${error.message}`);
+  }
+};
 
   return (
     <div className="form-container">
@@ -60,24 +174,6 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             {/* Ajout d'un champ caché pour l'ID si on est en mode édition */}
-            {initialData && (
-              <input type="hidden" name="idApprenti" value={formData.idApprenti} />
-            )}
-            
-            <div className="form-group">
-              <label>ID Apprenti :</label>
-              <input 
-                type="text" 
-                name="idApprenti" 
-                className="form-input"
-                placeholder="Entrer l'identifiant" 
-                required 
-                value={formData.idApprenti} 
-                onChange={handleChange} 
-                disabled={initialData ? true : false}
-              />
-            </div>
-            
             <div className="form-group">
               <label>Nom :</label>
               <input 
@@ -110,7 +206,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 type="date" 
                 name="dateNaissance" 
                 className="form-input"
-                required 
+                //required 
                 value={formData.dateNaissance} 
                 onChange={handleChange} 
               />
@@ -123,7 +219,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 name="email" 
                 className="form-input"
                 placeholder="Entrer l'e-mail" 
-                required 
+                //required 
                 value={formData.email} 
                 onChange={handleChange} 
               />
@@ -136,7 +232,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 name="telephone" 
                 className="form-input"
                 placeholder="Entrer le numéro" 
-                required 
+                //required 
                 value={formData.telephone} 
                 onChange={handleChange} 
               />
@@ -149,7 +245,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
                 name="numeroCCP" 
                 className="form-input"
                 placeholder="Entrer le numéro CCP" 
-                required 
+                //required 
                 value={formData.numeroCCP} 
                 onChange={handleChange} 
               />
@@ -160,7 +256,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
               <select 
                 name="type" 
                 className="form-select"
-                required 
+                //required 
                 value={formData.type} 
                 onChange={handleChange}
               >
@@ -175,7 +271,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
               <select 
                 name="niveauEtude" 
                 className="form-select"
-                required 
+                //required 
                 value={formData.niveauEtude} 
                 onChange={handleChange}
               >
@@ -192,7 +288,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
               <select 
                 name="numeroStage" 
                 className="form-select"
-                required 
+                //required 
                 value={formData.numeroStage} 
                 onChange={handleChange}
               >
@@ -207,7 +303,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
               <select 
                 name="specialite" 
                 className="form-select"
-                required 
+                //required 
                 value={formData.specialite} 
                 onChange={handleChange}
               >

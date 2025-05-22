@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import ApprentiForms from "../form/ApprentiForms";
 import "../form/form.css";
@@ -8,29 +8,39 @@ function ApprentisPage() {
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedApprenti, setSelectedApprenti] = useState(null);
-  const [apprentis, setApprentis] = useState([
-    {
-      idApprenti: 1,
-      nom: "Dubois",
-      prenom: "Marie",
-      numeroCCP: "CCP12345",
-      specialite: "Mécanique"
-    },
-    {
-      idApprenti: 2,
-      nom: "Leroy",
-      prenom: "Thomas",
-      numeroCCP: "CCP67890",
-      specialite: "Génie Civil"
-    },
-    // Vous pouvez ajouter d'autres données de test ici
-  ]);
+  
+  const [apprentis, setApprentis] = useState([]);
   
   // États pour la recherche
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("nom");
   
   const [editingApprenti, setEditingApprenti] = useState(null);
+
+    useEffect(() => {
+      const token = localStorage.getItem('token');
+      fetch('http://localhost:8080/apprentis', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setApprentis(data);
+      })
+      .catch(error => {
+        console.error('Error fetching apprentis:', error);
+        // Optionally redirect to login if unauthorized
+        if (error.message.includes('403')) {
+          window.location.href = '/login';
+        }
+      });
+    }, []);
 
   // Icônes SVG intégrées
   const iconView = (
@@ -59,11 +69,47 @@ function ApprentisPage() {
     </svg>
   );
 
-  const handleDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet apprenti ?")) {
-      setApprentis(apprentis.filter(apprenti => apprenti.idApprenti !== id));
+const handleDelete = async (id) => {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer cet apprenti ?")) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error("No authentication token found");
+        window.location.href = '/login';
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8080/apprentis/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Update UI without reloading the page
+        setApprentis(apprentis.filter(apprenti => apprenti.idAS !== id));
+        console.log("Apprenti supprimé avec succès");
+      } else {
+        const errorText = await response.text();
+        console.error("Erreur lors de la suppression :", errorText);
+        
+        // Handle unauthorized (401/403) responses
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = '/login';
+        }
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
+      // Handle network errors
+      if (error.message.includes('Failed to fetch')) {
+        alert("Problème de connexion au serveur");
+      }
     }
-  };
+  }
+};
 
   const handleEdit = (apprenti) => {
     setEditingApprenti(apprenti);
@@ -224,7 +270,7 @@ function ApprentisPage() {
                     <button className="icon-button edit-icon" onClick={() => handleEdit(apprenti)} data-tooltip="Modifier">
                       {iconEdit}
                     </button>
-                    <button className="icon-button delete-icon" onClick={() => handleDelete(apprenti.idApprenti)} data-tooltip="Supprimer">
+                    <button className="icon-button delete-icon" onClick={() => handleDelete(apprenti.idAS)} data-tooltip="Supprimer">
                       {iconDelete}
                     </button>
                   </td>

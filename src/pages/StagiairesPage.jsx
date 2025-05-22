@@ -10,23 +10,7 @@ function StagiairesPage() {
   const [selectedStagiaire, setSelectedStagiaire] = useState(null);
 
   const [editingStagiaire, setEditingStagiaire] = useState(null);
-  const [stagiaires, setStagiaires] = useState([
-    {
-      idAS: 1,
-      nom: "Rahli",
-      prenom: "Mohamed",
-      idStage: "12",
-      idSpecialite: "Mécanique"
-      
-    },
-    {
-      idAS: 2,
-      nom: "Bouali",
-      prenom: "Asma",
-      idStage: "6",
-      idSpecialite: "Informatique"
-    }
-  ]);
+  const [stagiaires, setStagiaires] = useState([]);
 
 
 
@@ -35,14 +19,29 @@ function StagiairesPage() {
   const [searchCriteria, setSearchCriteria] = useState("nom");
 
   useEffect(() => {
-    fetch('http://localhost:8080/sa')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setStagiaires(data);
-      })
-  }, [])
+    const token = localStorage.getItem('token');
+    fetch('http://localhost:8080/stagiaires', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    })
+    .then(data => {
+      setStagiaires(data);
+    })
+    .catch(error => {
+      console.error('Error fetching stagiaires:', error);
+      // Optionally redirect to login if unauthorized
+      if (error.message.includes('403')) {
+        window.location.href = '/login';
+      }
+    });
+  }, []);
 
   // Icônes SVG intégrées
   const iconView = (
@@ -71,27 +70,47 @@ function StagiairesPage() {
     </svg>
   );
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stagiaire ?")) {
-      try {
-        const response = await fetch(`http://localhost:8080/sa/${id}`, {
-          method: "DELETE",
-        });
-  
-        if (response.ok) {
-          window.location.reload();
-          setStagiaires(stagiaires.filter(stagiaire => stagiaire.idAS !== id));
-          console.log("Stagiaire supprimé avec succès");
-        } else {
-          const errorText = await response.text();
-          console.error("Erreur lors de la suppression :", errorText);
+const handleDelete = async (id) => {
+  if (window.confirm("Êtes-vous sûr de vouloir supprimer ce stagiaire ?")) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error("No authentication token found");
+        window.location.href = '/login';
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8080/stagiaires/${id}`, {
+        method: "DELETE",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      } catch (error) {
-        console.error("Erreur réseau :", error);
+      });
+
+      if (response.ok) {
+        // Update UI without reloading the page
+        setStagiaires(stagiaires.filter(stagiaire => stagiaire.idAS !== id));
+        console.log("Stagiaire supprimé avec succès");
+      } else {
+        const errorText = await response.text();
+        console.error("Erreur lors de la suppression :", errorText);
+        
+        // Handle unauthorized (401/403) responses
+        if (response.status === 401 || response.status === 403) {
+          window.location.href = '/login';
+        }
+      }
+    } catch (error) {
+      console.error("Erreur réseau :", error);
+      // Handle network errors
+      if (error.message.includes('Failed to fetch')) {
+        alert("Problème de connexion au serveur");
       }
     }
-  };
-
+  }
+};
   const handleEdit = (stagiaire) => {
     setEditingStagiaire(stagiaire);
     setShowForm(true);
