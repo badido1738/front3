@@ -4,67 +4,95 @@ import { jsPDF } from 'jspdf';
 import logo from '../assets/Sonatrach.svg.png';
 
 function DocumentsGeneration() {
-  // Existing state declarations
+  // Déclarer tous les hooks au début du composant
   const [selectedDocument, setSelectedDocument] = useState("");
   const [selectedItem, setSelectedItem] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [presenceData, setPresenceData] = useState({});
-  const [stages, setStages] = useState([]);
   
-  // Add these missing state declarations
+  // Données de test BADIDOUUUUUUUUUUUUUUUUUUUUUUUUUU n7ihm ki tkml tlinker
+  const [stages, setStages] = useState([]);
+
+  // Données de test pour les stagiaires
   const [stagiaires, setStagiaires] = useState([]);
+
+  // Données de test pour les apprentis
   const [apprentis, setApprentis] = useState([]);
 
-  // Updated refreshData function
-  const refreshData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
+  const [etablissements, setEtablissements] = useState([]);
 
-    const headers = {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
 
-    try {
-      // Fetch stages
-      const stagesResponse = await fetch('http://localhost:8080/stages', { headers });
-      if (!stagesResponse.ok) {
-        throw new Error(`Erreur stages: ${stagesResponse.status}`);
-      }
-      const stagesData = await stagesResponse.json();
-      setStages(stagesData);
+  // Fonction pour rafraîchir les données
+const refreshData = () => {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    console.error('No authentication token found');
+    window.location.href = '/login';
+    return;
+  }
 
-      // Fetch stagiaires
-      const stagiairesResponse = await fetch('http://localhost:8080/stagiaires', { headers });
-      if (!stagiairesResponse.ok) {
-        throw new Error(`Erreur stagiaires: ${stagiairesResponse.status}`);
-      }
-      const stagiairesData = await stagiairesResponse.json();
-      setStagiaires(stagiairesData);
-
-      // Fetch apprentis
-      const apprentisResponse = await fetch('http://localhost:8080/apprentis', { headers });
-      if (!apprentisResponse.ok) {
-        throw new Error(`Erreur apprentis: ${apprentisResponse.status}`);
-      }
-      const apprentisData = await apprentisResponse.json();
-      setApprentis(apprentisData);
-
-    } catch (error) {
-      console.error('Erreur lors du rafraîchissement des données:', error);
-      
-      if (error.message.includes('401') || error.message.includes('403')) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-      } else {
-        alert('Erreur lors du chargement des données. Veuillez réessayer.');
-      }
-    }
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
   };
 
+  // Récupérer les stages
+  fetch('http://localhost:8080/stages', { headers })
+    .then(res => {
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = '/login';
+        }
+        throw new Error('Erreur réseau');
+      }
+      return res.json();
+    })
+    .then(data => setStages(data))
+    .catch(err => console.error('Erreur lors de la récupération des stages:', err));
+
+  // Récupérer les stagiaires
+  fetch('http://localhost:8080/stagiaires', { headers })
+    .then(res => {
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = '/login';
+        }
+        throw new Error('Erreur réseau');
+      }
+      return res.json();
+    })
+    .then(data => setStagiaires(data))
+    .catch(err => console.error('Erreur lors de la récupération des stagiaires:', err));
+
+  // Récupérer les apprentis
+  fetch('http://localhost:8080/apprentis', { headers })
+    .then(res => {
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = '/login';
+        }
+        throw new Error('Erreur réseau');
+      }
+      return res.json();
+    })
+    .then(data => setApprentis(data))
+    .catch(err => console.error('Erreur lors de la récupération des apprentis:', err));
+
+        fetch('http://localhost:8080/etablissements', { headers })
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            window.location.href = '/login';
+          }
+          throw new Error('Erreur réseau');
+        }
+        return res.json();
+      })
+      .then(data => setEtablissements(data))
+      .catch(err => console.error('Erreur lors de la récupération des établissements:', err));
+  
+};
 
   // Charger les données au montage du composant
   useEffect(() => {
@@ -138,7 +166,7 @@ function DocumentsGeneration() {
     const year = currentDate.getFullYear();
     
     // En-tête avec logo (taille réduite)
-    doc.addImage(logo, 'PNG', 10, 10, 20, 20);
+    doc.addImage(logo, 'PNG', 10, 5, 20, 20); // Modifié de Y=10 à Y=5
     
     // Titre et période
     doc.setFontSize(12);
@@ -160,316 +188,430 @@ function DocumentsGeneration() {
     let startY = 55;
     const cellHeight = 7;
     
-    // En-tête du tableau de présence
-    doc.rect(20, startY, 15, cellHeight); // Date
-    doc.rect(35, startY, 15, cellHeight); // J
-    doc.rect(50, startY, 20, cellHeight); // Pos.
-    doc.rect(70, startY, 60, cellHeight); // Observations
+    // En-tête du tableau de présence avec colonnes ajustées et déplacées vers la gauche
+    doc.rect(15, startY, 15, cellHeight); // Date (déplacé de 20 à 15)
+    doc.rect(30, startY, 15, cellHeight); // J (déplacé de 35 à 30)
+    doc.rect(45, startY, 20, cellHeight); // Pos. (déplacé de 50 à 45)
+    doc.rect(65, startY, 35, cellHeight); // Observations (déplacé de 70 à 65)
     
-    doc.text('Date', 23, startY + 5);
-    doc.text('J', 40, startY + 5);
-    doc.text('Pos.', 55, startY + 5);
-    doc.text('Observations', 85, startY + 5);
+    doc.text('Date', 18, startY + 5); // Ajusté de 23 à 18
+    doc.text('J', 35, startY + 5); // Ajusté de 40 à 35
+    doc.text('Pos.', 50, startY + 5); // Ajusté de 55 à 50
+    doc.text('Observations', 70, startY + 5); // Ajusté de 75 à 70
     
     // Corps du tableau
     startY += cellHeight;
     const daysOfWeek = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-    const today = currentDate.getDate();  // Ajout de cette ligne
+    const today = currentDate.getDate();
+    
+    // Initialiser les compteurs pour chaque type de pointage
+    let countP = 0;
+    let countAA = 0;
+    let countF = 0;
+    let countRH = 0;
     
     Array.from({ length: today }, (_, i) => i + 1).forEach(day => {
-      const date = new Date(year, currentDate.getMonth(), day);
-      const dayOfWeek = daysOfWeek[date.getDay()];
-      
-      doc.rect(20, startY, 15, cellHeight);
-      doc.rect(35, startY, 15, cellHeight);
-      doc.rect(50, startY, 20, cellHeight);
-      doc.rect(70, startY, 60, cellHeight);
-      
-      doc.text(String(day), 25, startY + 5);
-      doc.text(dayOfWeek, 40, startY + 5);
-      
-      const dayData = presenceData[day] || { etat: "present", observation: "" };
-      const etatAffiche = {
-        "present": "P",
-        "absent": "AA",
-        "conge": "F",
-        "mission": "RH"
-      }[dayData.etat];
-      
-      doc.text(etatAffiche, 55, startY + 5);
-      
-      if (dayData.observation) {
-        doc.text(dayData.observation, 75, startY + 5);
-      }
-      
-      startY += cellHeight;
+        const date = new Date(year, currentDate.getMonth(), day);
+        const dayOfWeek = daysOfWeek[date.getDay()];
+        
+        doc.rect(15, startY, 15, cellHeight); // Date
+        doc.rect(30, startY, 15, cellHeight); // J
+        doc.rect(45, startY, 20, cellHeight); // Pos.
+        doc.rect(65, startY, 35, cellHeight); // Observations
+        
+        doc.text(String(day), 20, startY + 5);
+        doc.text(dayOfWeek, 35, startY + 5);
+        
+        // Marquer automatiquement les vendredis (5) et samedis (6) comme RH
+        const dayData = presenceData[day] || {
+          etat: (date.getDay() === 5 || date.getDay() === 6) ? "mission" : "present",
+          observation: ""
+        };
+        
+        const etatAffiche = {
+          "present": "P",
+          "absent": "AA",
+          "conge": "F",
+          "mission": "RH"
+        }[dayData.etat];
+        
+        // Incrémenter les compteurs
+        switch (etatAffiche) {
+          case "P":
+            countP++;
+            break;
+          case "AA":
+            countAA++;
+            break;
+          case "F":
+            countF++;
+            break;
+          case "RH":
+            countRH++;
+            break;
+        }
+        
+        doc.text(etatAffiche, 50, startY + 5);
+        
+        if (dayData.observation) {
+          doc.text(dayData.observation, 75, startY + 5);
+        }
+        
+        startY += cellHeight;
     });
-    
-    // État du pointage
-    doc.rect(140, 55, 60, 40);
-    doc.text('ETAT DU POINTAGE', 150, 60);
-    doc.text('Type pointage :', 145, 70);
-    doc.text('AA    F    P    RH', 145, 77);
-    doc.text('Nb Jours :', 145, 85);
-    
-    // Primes et indemnités
-    doc.rect(140, 100, 60, 80);
-    doc.text('PRIMES ET INDEMNITES', 150, 105);
-    doc.text('PANIER :', 145, 115);
-    doc.text('RETENUE PANIER :', 145, 125);
-    doc.text('NOURRITURE :', 145, 135);
-    doc.text('ITZIN :', 145, 145);
-    doc.text('IZCV :', 145, 155);
-    doc.text('IND.ROUTE :', 145, 165);
-    doc.text('RETARD :', 145, 175);
-    
-    // Observations générales
-    doc.rect(140, 185, 60, 40);
-    doc.text('OBSERVATIONS', 150, 190);
-    
-    // Zone de signature avec tableau unique
-    const signatureStartX = 20;
-    const signatureWidth = 110;
-    const signatureHeight = 45;
-    const headerHeight = 15;
-    const signatureMarginTop = 20;
-    
-    // Calcul de la position Y pour les signatures avec une marge minimale de 30px après le dernier jour
-    const signatureY = Math.max(startY + 30, 240);
-    
-    // Création du tableau principal avec plus d'espace
-    doc.rect(signatureStartX, signatureY, signatureWidth, signatureHeight);
-    
-    // Lignes de séparation verticales
-    doc.line(signatureStartX + 37, signatureY, signatureStartX + 37, signatureY + signatureHeight);
-    doc.line(signatureStartX + 73, signatureY, signatureStartX + 73, signatureY + signatureHeight);
-    
-    // Ligne horizontale pour séparer les en-têtes
-    doc.line(signatureStartX, signatureY + headerHeight, signatureStartX + signatureWidth, signatureY + headerHeight);
-    
-    // Texte des en-têtes avec un meilleur espacement
-    doc.setFontSize(9);
-    
-    // Première colonne
-    doc.text('Visa Service', signatureStartX + 3, signatureY + 8);
-    doc.text('personnel', signatureStartX + 3, signatureY + 13);
-    
-    // Deuxième colonne
-    doc.text('Mois Exploitation', signatureStartX + 40, signatureY + 8);
-    doc.text('paie', signatureStartX + 40, signatureY + 13);
-    
-    // Troisième colonne
-    doc.text('Cachet et Signature', signatureStartX + 76, signatureY + 8);
-    doc.text('Responsable', signatureStartX + 76, signatureY + 13);
-    
-    doc.setFontSize(10);
-    
-   
-    
-    
-    doc.save(`fiche_position_${apprentiId}_${month}_${year}.pdf`);
-  };
+      
+    // État du pointage - aligné à droite avec largeur augmentée
+    doc.rect(105, 55, 100, 40);
+    doc.text('ETAT DU POINTAGE', 130, 60);
+    doc.text('Type pointage :', 110, 70);
+    doc.text('AA    F    P    RH', 110, 77);
+    doc.text('Nb Jours :', 110, 85);
+    doc.text(`${countAA}    ${countF}    ${countP}    ${countRH}`, 110, 92);
+      
+      // Primes et indemnités - aligné à droite avec largeur augmentée
+      doc.rect(105, 100, 100, 80);
+      doc.text('PRIMES ET INDEMNITES', 125, 105);
+      doc.text('PANIER :', 110, 115);
+      doc.text('RETENUE PANIER :', 110, 125);
+      doc.text('NOURRITURE :', 110, 135);
+      doc.text('ITZIN :', 110, 145);
+      doc.text('IZCV :', 110, 155);
+      doc.text('IND.ROUTE :', 110, 165);
+      doc.text('RETARD :', 110, 175);
+      
+      // Observations générales - aligné à droite avec largeur augmentée
+      doc.rect(105, 185, 100, 40);
+      doc.text('OBSERVATIONS', 125, 190);
+      
+      // Zone de signature - alignée à droite avec largeur augmentée et montée plus haut
+      const signatureStartX = 105;
+      const signatureWidth = 100;
+      const signatureHeight = 45;
+      const headerHeight = 15;
+      
+      // Position Y fixe pour la signature, sans dépendre de startY
+      const signatureY = 230;
+      
+      // Création du tableau principal
+      doc.rect(signatureStartX, signatureY, signatureWidth, signatureHeight);
+      
+      // Lignes de séparation verticales
+      doc.line(signatureStartX + 33, signatureY, signatureStartX + 33, signatureY + signatureHeight);
+      doc.line(signatureStartX + 66, signatureY, signatureStartX + 66, signatureY + signatureHeight);
+      
+      // Ligne horizontale pour séparer les en-têtes
+      doc.line(signatureStartX, signatureY + headerHeight, signatureStartX + signatureWidth, signatureY + headerHeight);
+      
+      // Texte des en-têtes
+      doc.setFontSize(9);
+      
+      // Première colonne
+      doc.text('Visa Service', signatureStartX + 5, signatureY + 8);
+      doc.text('personnel', signatureStartX + 5, signatureY + 13);
+      
+      // Deuxième colonne
+      doc.text('Mois Exploitation', signatureStartX + 35, signatureY + 8);
+      doc.text('paie', signatureStartX + 40, signatureY + 13);
+      
+      // Troisième colonne
+      doc.text('Cachet et Signature', signatureStartX + 70, signatureY + 8);
+      doc.text('Responsable', signatureStartX + 75, signatureY + 13);
+      
+      doc.setFontSize(10);
+      
+     
+      
+      doc.save(`fiche_position_${apprentiId}_${month}_${year}.pdf`);
+    };
 
-  const handleDocumentGeneration = () => {
-    switch (selectedDocument) {
-      case "fichePosition":
-        setShowCalendar(true);
-        break;
-      case "priseEnCharge":
-        generatePriseEnCharge(selectedItem);
-        break;
-      case "attestation":
-        generateAttestation(selectedItem);
-        break;
-      default:
-        alert("Veuillez sélectionner un type de document");
-    }
-  };
+    const handleDocumentGeneration = () => {
+      switch (selectedDocument) {
+        case "fichePosition":
+          setShowCalendar(true);
+          break;
+        case "priseEnCharge":
+          generatePriseEnCharge(selectedItem);
+          break;
+        case "attestation":
+          generateAttestation(selectedItem);
+          break;
+        default:
+          alert("Veuillez sélectionner un type de document");
+      }
+    };
 
 const generatePriseEnCharge = (stageId) => {
-  // Find the selected stage
-  const stage = stages.find(s => s.idStage === parseInt(stageId));
-  if (!stage) {
-    alert("Stage non trouvé");
-    return;
-  }
+    // Trouver le stage
+    const stage = stages.find(s => s.idStage === parseInt(stageId));
+    if (!stage) {
+        alert("Stage non trouvé");
+        return;
+    }
 
-  // Get all stagiaires for this stage
-  const stageStagiaires = stagiaires.filter(s => s.idStage === stage.idStage);
-  
-  // Helper function to safely handle text values
-  const safeText = (value) => {
-    if (value === null || value === undefined) return '';
-    if (typeof value === 'object') return JSON.stringify(value);
-    return String(value);
+    // Trouver les stagiaires associés à ce stage
+ const stagiairesDuStage = stagiaires.filter(s => s.stage?.idStage === parseInt(stageId));
+
+    console.log("Stage sélectionné:", stage);
+    console.log("Stagiaires trouvés:", stagiairesDuStage);
+    console.log("Structure d'un stagiaire:", stagiairesDuStage[0]);
+    
+    //
+
+    // Créer le document PDF
+    const doc = new jsPDF();
+    
+    // Cadre du document
+    doc.rect(10, 10, 190, 277);
+    
+    // En-tête avec logo
+    doc.addImage(logo, 'PNG', 15, 15, 20, 20);
+    
+    // En-tête administratif
+    doc.setFontSize(10);
+    doc.text('DIRECTION GÉNÉRALE', 15, 45);
+    doc.text('DIRECTION CENTRALE DIGITALISATION', 15, 50);
+    doc.text('ET SYSTEME D\'INFORMATION', 15, 55);
+    doc.text('N° _____/SUPP/FOR/DC-DSI/2024', 15, 65);
+    
+    // Zone photo
+    doc.rect(160, 15, 30, 40);
+    doc.text('PHOTOS', 170, 35);
+    
+    // Titre avec fond bleu clair
+    doc.setFillColor(200, 230, 250);
+    doc.rect(15, 80, 120, 10, 'F');
+    doc.setFontSize(11);
+    doc.text('PRISE EN CHARGE STAGE', 45, 87);
+    
+    // Cases à cocher
+    doc.setFontSize(9);
+    doc.rect(140, 77, 5, 5);
+    doc.text('Avec prise en charge transport', 147, 81);
+    doc.rect(140, 84, 5, 5);
+    doc.text('Avec prise en charge restauration', 147, 88);
+    doc.rect(140, 91, 5, 5);
+    doc.text('Sans prise en charge', 147, 95);
+    
+    // Grand tableau principal
+    const startY = 100;
+    const tableHeight = 120;
+    
+    // Bordures extérieures du tableau
+    doc.line(15, startY, 195, startY);
+    doc.line(195, startY, 195, startY + tableHeight);
+    doc.line(15, startY + tableHeight, 195, startY + tableHeight);
+    doc.line(15, startY, 15, startY + tableHeight);
+    
+    // Première colonne avec fond gris
+    doc.setFillColor(240, 240, 240);
+    doc.rect(15, startY, 30, tableHeight, 'F');
+    
+    // Texte "Encadrement professionnel"
+    doc.text('Encadrement', 17, startY + 35);
+    doc.text('professionnel', 17, startY + 40);
+    
+    // Lignes verticales séparatrices
+    doc.line(45, startY, 45, startY + tableHeight);
+    doc.line(120, startY, 120, startY + tableHeight);
+    
+    // Structure du tableau
+    let currentY = startY;
+    const rowHeight = 10;
+    
+    // Structure d'encadrement
+    doc.text('Structure d\'encadrement', 50, currentY + 7);
+    doc.rect(125, currentY + 3, 5, 5);
+    doc.text('DC-DSI', 132, currentY + 7);
+    
+    // Nom et Prénom des stagiaires
+    currentY += rowHeight;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Nom et Prénom des stagiaires', 50, currentY + 7);
+    doc.rect(125, currentY + 2, 65, 6);
+    doc.rect(125, currentY + 9, 65, 6);
+
+    // Affichage des stagiaires
+    if (stagiairesDuStage.length > 0) {
+        if (stagiairesDuStage[0]) {
+            doc.text(`${stagiairesDuStage[0].nom} ${stagiairesDuStage[0].prenom}`.trim(), 127, currentY + 6);
+        }
+        if (stagiairesDuStage[1]) {
+            doc.text(`${stagiairesDuStage[1].nom} ${stagiairesDuStage[1].prenom}`.trim(), 127, currentY + 13);
+        }
+    }
+    
+    // Thème de stage
+    currentY += rowHeight * 2;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Thème de stage', 50, currentY + 7);
+    doc.text(stage.theme || '', 125, currentY + 7);
+    
+    // Encadreur
+    currentY += rowHeight;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Nom de l\'encadreur', 50, currentY + 7);
+    doc.text(stage.encadreur || '', 125, currentY + 7);
+    doc.text('N° poste', 150, currentY + 7);
+    
+    // Fonction
+    currentY += rowHeight;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Fonction de l\'encadreur', 50, currentY + 7);
+    doc.text(stage.fonctionEncadreur || '', 125, currentY + 7);
+    doc.text('e-mail', 150, currentY + 7);
+    
+    // Date début et fin
+    currentY += rowHeight;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Date début et fin de stage', 50, currentY + 7);
+    doc.text('Du', 125, currentY + 7);
+    doc.text(new Date(stage.dateDebut).toLocaleDateString('fr-FR'), 135, currentY + 7);
+    doc.text('Au', 155, currentY + 7);
+    doc.text(new Date(stage.dateFin).toLocaleDateString('fr-FR'), 165, currentY + 7);
+    
+    // Jours de réception et cases à cocher
+    currentY += rowHeight;
+    doc.line(45, currentY, 195, currentY);
+    doc.text('Jours de réception', 50, currentY + 7);
+    
+    const joursColonne1 = [
+        { text: 'Dimanche', y: 0 },
+        { text: 'Lundi', y: 7 },
+        { text: 'Mardi', y: 14 }
+    ];
+    
+    const joursColonne2 = [
+        { text: 'Mercredi', y: 0 },
+        { text: 'Jeudi', y: 7 }
+    ];
+    
+    joursColonne1.forEach(jour => {
+        doc.rect(140, currentY + 3 + jour.y, 4, 4);
+        doc.text(jour.text, 146, currentY + 6 + jour.y);
+    });
+    
+    joursColonne2.forEach(jour => {
+        doc.rect(170, currentY + 3 + jour.y, 4, 4);
+        doc.text(jour.text, 176, currentY + 6 + jour.y);
+    });
+    
+    // Section logistique
+    const logistiqueY = startY + tableHeight + 10;
+    doc.rect(15, logistiqueY, 180, 25);
+    doc.setFillColor(240, 240, 240);
+    doc.rect(15, logistiqueY, 30, 25, 'F');
+    doc.text('Prise en charge', 17, logistiqueY + 8);
+    doc.text('logistique', 17, logistiqueY + 13);
+    
+    doc.line(45, logistiqueY, 45, logistiqueY + 25);
+    doc.text('Visa du Département Catering', 50, logistiqueY + 8);
+    doc.line(45, logistiqueY + 12, 195, logistiqueY + 12);
+    doc.text('Visa du Département Transport', 50, logistiqueY + 20);
+    
+    // Zone de signature
+    const signatureY = logistiqueY + 35;
+    doc.rect(15, signatureY, 180, 20);
+    doc.line(105, signatureY, 105, signatureY + 20);
+    doc.text('Responsable habilité de la Structure', 17, signatureY + 8);
+    doc.text('(de rang de Directeur et plus)', 17, signatureY + 13);
+    doc.text('Le Directeur Formation &', 110, signatureY + 8);
+    doc.text('Planification RH', 110, signatureY + 13);
+    
+    // Sauvegarder le PDF
+    doc.save(`prise_en_charge_${stageId}.pdf`);
+};
+
+  const generateAttestation = (stagiaireId) => {
+      const stagiaire = stagiaires.find(s => s.idAS === parseInt(stagiaireId));
+      if (!stagiaire) {
+        alert("Stagiaire non trouvé");
+        return;
+      }
+    
+const stage = stages.find(s => s.idStage === stagiaire.stage?.idStage);
+if (!stage) {
+    alert("Stage associé non trouvé");
+    return;
+}
+    
+      const doc = new jsPDF();
+      const currentDate = new Date();
+      
+      // Ajout du cadre autour du document
+      doc.setDrawColor(255, 0, 0); 
+      // Couleur du cadre (rouge)
+      doc.rect(10, 10, 190, 277);
+      doc.setDrawColor(0, 0, 0);
+      
+      // En-tête avec logo (taille réduite)
+      doc.addImage(logo, 'PNG', 15, 15, 20, 20);
+      
+      // Informations de l'entreprise (taille réduite)
+      doc.setFontSize(9);
+      doc.text('DCP - RHU', 15, 45);
+      doc.text('DIRECTION FORMATION & PLANIFICATION RH', 15, 50);
+      doc.text('DEPARTEMENT GESTION DE LA FORMATION SIEGE', 15, 55);
+      doc.text(`N° ${stagiaireId} /2024`, 15, 60);
+      
+      // Titre souligné (taille légèrement réduite)
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ATTESTATION DE STAGE', 105, 65, { align: 'center' });
+      const titleWidth = doc.getTextWidth('ATTESTATION DE STAGE');
+      doc.line(105 - titleWidth/2, 67, 105 + titleWidth/2, 67);
+      
+      // Corps du texte (taille réduite)
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Je soussigné(e) : ', 15, 85);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Le Directeur Formation & Planification RH', 50, 85);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text('Atteste que l\'étudiant(e) : ', 15, 100);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${stagiaire.nom} ${stagiaire.prenom}`, 60, 100);
+      doc.setFont('helvetica', 'normal');
+      doc.text('né(e) le : ', 110, 100);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${stagiaire.dateN}`, 130, 100);
+      doc.text(`${stagiaire.lieuN}`, 180, 100);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Inscrit(e) à : ', 15, 125);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${etablissements.find(e => e.idEtab === stagiaire.etablissement?.idEtab)?.nomEtab || ''}`, 50, 125);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text('A effectué un stage pratique ayant pour thème ', 15, 140);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`« ${stage.theme} ».`, 120, 140);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text('A : ', 15, 155);
+      doc.setFont('helvetica', 'bold');
+      doc.text('La Direction Centrale Digitalisation et Système d\'Information', 25, 155);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text('Durant la période du : ', 15, 170);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${new Date(stage.dateDebut).toLocaleDateString('fr-FR')} au ${new Date(stage.dateFin).toLocaleDateString('fr-FR')}.`, 65, 170);
+      
+      // Date et signature (taille réduite)
+      doc.text('Fait à : Alger', 120, 200);
+      doc.text(`Le : ${currentDate.toLocaleDateString('fr-FR')}`, 160, 200);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Le Directeur Formation & Planification RH', 120, 220);
+      doc.text('F. KHERCHACHE', 120, 235);
+      
+      // Mention légale en bas (taille réduite)
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Cette attestation est délivrée pour servir et faire valoir ce que de droit.', 15, 260);
+      
+      doc.save(`attestation_stage_${stagiaireId}.pdf`);
   };
 
-  const doc = new jsPDF();
-  
-  // Document frame
-  doc.rect(10, 10, 190, 277);
-  
-  // Header with logo
-  doc.addImage(logo, 'PNG', 15, 15, 20, 20);
-  
-  // Administrative header
-  doc.setFontSize(10);
-  doc.text('DIRECTION GÉNÉRALE', 15, 45);
-  doc.text('DIRECTION CENTRALE DIGITALISATION', 15, 50);
-  doc.text('ET SYSTEME D\'INFORMATION', 15, 55);
-  doc.text('N° _____/SUPP/FOR/DC-DSI/2024', 15, 65);
-  
-  // Photo area
-  doc.rect(160, 15, 30, 40);
-  doc.text('PHOTOS', 170, 35);
-  
-  // Title with light blue background
-  doc.setFillColor(200, 230, 250);
-  doc.rect(15, 80, 120, 10, 'F');
-  doc.setFontSize(11);
-  doc.text('PRISE EN CHARGE STAGE', 45, 87);
-  
-  // Checkboxes
-  doc.setFontSize(9);
-  doc.rect(140, 77, 5, 5);
-  doc.text('Avec prise en charge transport', 147, 81);
-  doc.rect(140, 84, 5, 5);
-  doc.text('Avec prise en charge restauration', 147, 88);
-  doc.rect(140, 91, 5, 5);
-  doc.text('Sans prise en charge', 147, 95);
-  
-  // Main table
-  const startY = 100;
-  const tableHeight = 120;
-  doc.rect(15, startY, 180, tableHeight);
-  
-  // First column
-  doc.setFillColor(240, 240, 240);
-  doc.rect(15, startY, 30, tableHeight, 'F');
-  doc.text('Encadrement', 17, startY + 35);
-  doc.text('professionnel', 17, startY + 42);
-  doc.text('Structure', 17, startY + 60);
-  doc.text('ADM', 17, startY + 65);
-  
-  // Vertical separator
-  doc.line(45, startY, 45, startY + tableHeight);
-  
-  // Table content
-  let currentY = startY;
-  const rowHeight = 10;
-  
-  // Structure section
-  doc.text('Structure d\'encadrement', 50, currentY + 7);
-  doc.rect(140, currentY + 3, 5, 5);
-  doc.text('DC-DSI', 147, currentY + 7);
-  
-  // Stagiaires names - UPDATED SECTION
-  currentY += rowHeight;
-  doc.line(45, currentY, 195, currentY);
-  doc.text('Nom et Prénom des stagiaires', 50, currentY + 7);
-  doc.rect(140, currentY + 2, 45, 6);
-  doc.rect(140, currentY + 9, 45, 6);
-  
-  // Display stagiaire names safely
-  if (stageStagiaires.length > 0) {
-    doc.text(safeText(`${stageStagiaires[0].nom} ${stageStagiaires[0].prenom}`), 142, currentY + 6);
-  } else {
-    doc.text('', 142, currentY + 6); // Empty if no stagiaires
-  }
-  
-  if (stageStagiaires.length > 1) {
-    doc.text(safeText(`${stageStagiaires[1].nom} ${stageStagiaires[1].prenom}`), 142, currentY + 13);
-  } else {
-    doc.text('', 142, currentY + 13); // Empty if only one stagiaire
-  }
-  
-  // Theme
-  currentY += rowHeight * 2;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Thème de stage', 50, currentY + 7);
-  doc.text(safeText(stage.theme || stage.idTheme), 140, currentY + 7);
-  
-  // Encadreur
-  currentY += rowHeight;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Nom de l\'encadreur', 50, currentY + 7);
-  doc.text(safeText(stage.encadreur || stage.idEncd), 140, currentY + 7);
-  doc.text('N° poste', 160, currentY + 7);
-  
-  // Function
-  currentY += rowHeight;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Fonction de l\'encadreur', 50, currentY + 7);
-  doc.text(safeText(stage.fonctionEncadreur), 140, currentY + 7);
-  doc.text('e-mail', 160, currentY + 7);
-  
-  // Dates
-  currentY += rowHeight;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Date début et fin de stage', 50, currentY + 7);
-  doc.text('Du', 140, currentY + 7);
-  doc.text(stage.dateDebut ? new Date(stage.dateDebut).toLocaleDateString('fr-FR') : '', 150, currentY + 7);
-  doc.text('Au', 170, currentY + 7);
-  doc.text(stage.dateFin ? new Date(stage.dateFin).toLocaleDateString('fr-FR') : '', 180, currentY + 7);
-  
-  // Reception days
-  currentY += rowHeight;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Jours de réception', 50, currentY + 7);
-  
-  // Checkboxes for days
-  const joursColonne1 = [
-    { text: 'Dimanche', y: 0 },
-    { text: 'Lundi', y: 7 },
-    { text: 'Mardi', y: 14 }
-  ];
-  
-  const joursColonne2 = [
-    { text: 'Mercredi', y: 0 },
-    { text: 'Jeudi', y: 7 }
-  ];
-  
-  joursColonne1.forEach(jour => {
-    doc.rect(140, currentY + 3 + jour.y, 4, 4);
-    doc.text(jour.text, 146, currentY + 6 + jour.y);
-  });
-  
-  joursColonne2.forEach(jour => {
-    doc.rect(170, currentY + 3 + jour.y, 4, 4);
-    doc.text(jour.text, 176, currentY + 6 + jour.y);
-  });
-  
-  // Visa section
-  currentY += rowHeight * 2.5;
-  doc.line(15, currentY, 195, currentY);
-  doc.text('Visa de la structure ADM', 50, currentY + 7);
-  doc.text('d\'encadrement', 50, currentY + 12);
-  doc.rect(140, currentY + 2, 45, 15);
-  
-  // Logistics section
-  const logistiqueY = startY + tableHeight + 10;
-  doc.rect(15, logistiqueY, 180, 25);
-  doc.setFillColor(240, 240, 240);
-  doc.rect(15, logistiqueY, 30, 25, 'F');
-  doc.text('Prise en charge', 17, logistiqueY + 8);
-  doc.text('logistique', 17, logistiqueY + 13);
-  
-  doc.line(45, logistiqueY, 45, logistiqueY + 25);
-  doc.text('Visa du Département Catering', 50, logistiqueY + 8);
-  doc.line(45, logistiqueY + 12, 195, logistiqueY + 12);
-  doc.text('Visa du Département Transport', 50, logistiqueY + 20);
-  
-  // Signature area
-  const signatureY = logistiqueY + 35;
-  doc.rect(15, signatureY, 180, 20);
-  doc.line(105, signatureY, 105, signatureY + 20);
-  doc.text('Responsable habilité de la Structure', 17, signatureY + 8);
-  doc.text('(de rang de Directeur et plus)', 17, signatureY + 13);
-  doc.text('Le Directeur Formation &', 110, signatureY + 8);
-  doc.text('Planification RH', 110, signatureY + 13);
-  
-  doc.save(`prise_en_charge_${stageId}.pdf`);
-};
   const renderCalendar = () => {
     if (!showCalendar) return null;
 
@@ -493,46 +635,56 @@ const generatePriseEnCharge = (stageId) => {
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: today }, (_, i) => i + 1).map(day => (
-                  <tr key={day}>
-                    <td>{day} {currentDate.toLocaleString('fr-FR', { month: 'long' })}</td>
-                    <td>
-                      <select
-                        value={presenceData[day]?.etat || 'present'}
-                        onChange={(e) => setPresenceData(prev => ({
-                          ...prev,
-                          [day]: {
-                            ...prev[day],
-                            etat: e.target.value,
-                            observation: prev[day]?.observation || ''
-                          }
-                        }))}
-                        className="presence-select"
-                      >
-                        <option value="present">P</option>
-                        <option value="absent">AA</option>
-                        <option value="conge">F</option>
-                        <option value="mission">RH</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={presenceData[day]?.observation || ''}
-                        onChange={(e) => setPresenceData(prev => ({
-                          ...prev,
-                          [day]: {
-                            ...prev[day],
-                            etat: prev[day]?.etat || 'present',
-                            observation: e.target.value
-                          }
-                        }))}
-                        placeholder="Ajouter une note..."
-                        className="observation-input"
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {Array.from({ length: today }, (_, i) => i + 1).map(day => {
+                  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                  const isWeekend = date.getDay() === 5 || date.getDay() === 6; // Vendredi ou Samedi
+
+                  return (
+                    <tr key={day}>
+                      <td>{day} {currentDate.toLocaleString('fr-FR', { month: 'long' })}</td>
+                      <td>
+                        {isWeekend ? (
+                          <span className="weekend-status">RH</span>
+                        ) : (
+                          <select
+                            value={presenceData[day]?.etat || 'present'}
+                            onChange={(e) => setPresenceData(prev => ({
+                              ...prev,
+                              [day]: {
+                                ...prev[day],
+                                etat: e.target.value,
+                                observation: prev[day]?.observation || ''
+                              }
+                            }))}
+                            className="presence-select"
+                          >
+                            <option value="present">P</option>
+                            <option value="absent">AA</option>
+                            <option value="conge">F</option>
+                            <option value="mission">RH</option>
+                          </select>
+                        )}
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={presenceData[day]?.observation || ''}
+                          onChange={(e) => setPresenceData(prev => ({
+                            ...prev,
+                            [day]: {
+                              ...prev[day],
+                              etat: isWeekend ? 'mission' : (prev[day]?.etat || 'present'),
+                              observation: e.target.value
+                            }
+                          }))}
+                          placeholder="Ajouter une note..."
+                          className="observation-input"
+                          disabled={isWeekend}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -611,4 +763,6 @@ const generatePriseEnCharge = (stageId) => {
 }
 
 export default DocumentsGeneration;
+
+
 

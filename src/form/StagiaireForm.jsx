@@ -7,7 +7,7 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
     prenom: "",
     dateN: "",
     numTel: "",
-    type: "",
+    lieuN: "",
     email: "",
     niveauEtude: "",
     idStage: "",
@@ -92,9 +92,9 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
         prenom: initialData.prenom || "",
         dateN: initialData.dateN|| "",
         numTel: initialData.numTel || "",
+        lieuN: initialData.lieuN || "",
         email: initialData.email || "",
         niveauEtude: initialData.niveauEtude || "",
-        type: initialData.type || "",
         idStage: initialData.stage?.idStage || "",
         idEtab: initialData.etablissement?.idEtab || "",
         idspecialite: initialData.specialite?.idspecialite || ""
@@ -120,7 +120,7 @@ const handleSubmit = async (e) => {
       prenom: formData.prenom,
       dateN: formData.dateN,
       numTel: formData.numTel,
-      type: formData.type,
+      lieuN: formData.lieuN,
       email: formData.email,
       niveauEtude: formData.niveauEtude,
       stage: formData.idStage ? { idStage: formData.idStage } : null,
@@ -222,17 +222,16 @@ const handleSubmit = async (e) => {
             </div>
 
             <div className="form-group">
-              <label>Type :</label>
-              <select 
-                name="type" 
-                className="form-select"
-                value={formData.type} 
-                onChange={handleChange}
-              >
-                <option value="">- Sélectionner le type -</option>
-                <option value="Stagiaire">Stagiaire</option>
-                <option value="Apprentis">Apprentis</option>
-              </select>
+              <label>Lieu de naissance :</label>
+              <input 
+                type="text" 
+                name="lieuN" 
+                className="form-input"
+                placeholder="Entrer le lieu de naissance" 
+                required 
+                value={formData.lieuN} 
+                onChange={handleChange} 
+              />
             </div>
 
             <div className="form-group">

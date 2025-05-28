@@ -1,274 +1,401 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-//import "../form/StagiaireForm.css";
 
 const EnvoiPage = () => {
   const navigate = useNavigate();
-  
-  // Les options pour les directions
-  const directionOptions = [
-    "Direction de Formation",
-    "Système d'Information",
-    "Ressources Humaines",
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [directions, setDirections] = useState([]);
+  const [stagiaires, setStagiaires] = useState([]);
+  const [apprentis, setApprentis] = useState([]);
+  const [currentUserDirection, setCurrentUserDirection] = useState('');
+
+  const documentTypeOptions = [
+    "Contrat",
+    "Convention",
+    "Attestation de Stage",
+    "Fiche de Position",
+    "Prise en Charge",
     "Autre"
   ];
-  
-  // État pour gérer les champs du formulaire
+
   const [formData, setFormData] = useState({
-    directionEnvoi: '',
-    autreDirectionEnvoi: '',
-    nomDocument: '',
-    nomStagiaire: '',
+    typeDocument: '',
+    autreTypeDocument: '',
+    stagiaire: '',
+    autreStagiaire: '',
     directionReception: '',
     autreDirectionReception: '',
     notes: ''
   });
 
-  // État pour suivre si "Autre" est sélectionné
-  const [showAutreDirectionEnvoi, setShowAutreDirectionEnvoi] = useState(false);
+  const [showAutreTypeDocument, setShowAutreTypeDocument] = useState(false);
+  const [showAutreStagiaire, setShowAutreStagiaire] = useState(false);
   const [showAutreDirectionReception, setShowAutreDirectionReception] = useState(false);
-
-  // État pour gérer les erreurs de validation
   const [errors, setErrors] = useState({});
 
-  // Gérer les changements dans les champs de texte
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-    
-    // Gestion spéciale pour les listes déroulantes de direction
-    if (name === 'directionEnvoi') {
-      setShowAutreDirectionEnvoi(value === 'Autre');
-    }
-    if (name === 'directionReception') {
-      setShowAutreDirectionReception(value === 'Autre');
+  const getToken = () => localStorage.getItem('token');
+
+  const fetchWithAuth = async (url) => {
+    const token = getToken();
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`Erreur lors de la récupération depuis ${url}:`, error);
+      throw error;
     }
   };
 
-  // Valider le formulaire
+  const fetchUserProfile = async () => {
+    const token = getToken();
+    try {
+      const response = await fetch("http://localhost:8080/utilisateurs/profile", {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Get user profile (which includes direction info)
+        const profile = await fetchUserProfile();
+        if (profile && profile.designationDirection) {
+          setCurrentUserDirection(profile.designationDirection);
+        }
+
+        const directionsData = await fetchWithAuth("http://localhost:8080/directions");
+        setDirections(directionsData);
+
+        const [stagiairesData, apprentisData] = await Promise.all([
+          fetchWithAuth("http://localhost:8080/stagiaires"),
+          fetchWithAuth("http://localhost:8080/apprentis")
+        ]);
+
+        const combinedTrainees = [
+          ...stagiairesData.map(s => ({ ...s, type: 'Stagiaire' })),
+          ...apprentisData.map(a => ({ ...a, type: 'Apprenti' }))
+        ];
+
+        setStagiaires(combinedTrainees);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === 'typeDocument') setShowAutreTypeDocument(value === 'Autre');
+    if (name === 'stagiaire') setShowAutreStagiaire(value === 'Autre');
+    if (name === 'directionReception') setShowAutreDirectionReception(value === 'Autre');
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
-    // Validation de la direction d'envoi
-    if (!formData.directionEnvoi.trim()) {
-      newErrors.directionEnvoi = 'La direction d\'envoi est requise';
-    } else if (formData.directionEnvoi === 'Autre' && !formData.autreDirectionEnvoi.trim()) {
-      newErrors.autreDirectionEnvoi = 'Veuillez préciser la direction d\'envoi';
-    }
-    
-    if (!formData.nomDocument.trim()) {
-      newErrors.nomDocument = 'Le nom du document est requis';
-    }
-    
-    if (!formData.nomStagiaire.trim()) {
-      newErrors.nomStagiaire = 'Le nom du stagiaire/apprenti est requis';
-    }
-    
-    // Validation de la direction de réception
-    if (!formData.directionReception.trim()) {
-      newErrors.directionReception = 'La direction de réception est requise';
-    } else if (formData.directionReception === 'Autre' && !formData.autreDirectionReception.trim()) {
-      newErrors.autreDirectionReception = 'Veuillez préciser la direction de réception';
-    }
-    
+    if (!formData.typeDocument.trim()) newErrors.typeDocument = 'Le type de document est requis';
+    else if (formData.typeDocument === 'Autre' && !formData.autreTypeDocument.trim())
+      newErrors.autreTypeDocument = 'Veuillez préciser le type de document';
+
+    if (!formData.stagiaire.trim()) newErrors.stagiaire = 'Le stagiaire/apprenti est requis';
+    else if (formData.stagiaire === 'Autre' && !formData.autreStagiaire.trim())
+      newErrors.autreStagiaire = 'Veuillez préciser le stagiaire/apprenti';
+
+    if (!formData.directionReception.trim()) newErrors.directionReception = 'La direction est requise';
+    else if (formData.directionReception === 'Autre' && !formData.autreDirectionReception.trim())
+      newErrors.autreDirectionReception = 'Veuillez préciser la direction';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Préparer les données pour l'envoi
   const prepareDataForSubmission = () => {
     const dataToSubmit = { ...formData };
-    
-    // Remplacer la direction d'envoi par la valeur personnalisée si "Autre" est sélectionné
-    if (formData.directionEnvoi === 'Autre') {
-      dataToSubmit.directionEnvoi = formData.autreDirectionEnvoi;
+
+    if (formData.typeDocument === 'Autre') {
+      dataToSubmit.typeDocument = formData.autreTypeDocument;
     }
-    
-    // Remplacer la direction de réception par la valeur personnalisée si "Autre" est sélectionné
+
+    if (formData.stagiaire === 'Autre') {
+      dataToSubmit.stagiaire = formData.autreStagiaire;
+    } else {
+      const selectedTrainee = stagiaires.find(t =>
+        `${t.prenom} ${t.nom}` === formData.stagiaire
+      );
+      if (selectedTrainee) dataToSubmit.traineeType = selectedTrainee.type;
+    }
+
     if (formData.directionReception === 'Autre') {
       dataToSubmit.directionReception = formData.autreDirectionReception;
     }
-    
-    // Supprimer les champs auxiliaires
-    delete dataToSubmit.autreDirectionEnvoi;
+
+    delete dataToSubmit.autreTypeDocument;
+    delete dataToSubmit.autreStagiaire;
     delete dataToSubmit.autreDirectionReception;
-    
+
     return dataToSubmit;
   };
 
-  // Gérer la soumission du formulaire
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const createNotification = async (documentData) => {
+    const token = getToken();
     
-    if (validateForm()) {
-      // Préparer les données
+    // Determine person type
+    let personType = 'stagiaire'; // default
+    if (documentData.stagiaire !== 'Autre') {
+      const selectedTrainee = stagiaires.find(t =>
+        `${t.prenom} ${t.nom}` === documentData.stagiaire
+      );
+      if (selectedTrainee) {
+        personType = selectedTrainee.type.toLowerCase();
+      }
+    }
+
+    const notificationData = {
+      sendingDirection: currentUserDirection,
+      receivingDirection: documentData.directionReception,
+      documentType: documentData.typeDocument,
+      concernedPerson: documentData.stagiaire,
+      personType: personType,
+      date: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+      status: 'pending', // Initial status for sent notifications
+      viewed: false,
+      type: 'sent'
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/notifications", {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(notificationData)
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la création de la notification");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de la création de la notification:', error);
+      // Don't fail the whole process if notification creation fails
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
       const dataToSubmit = prepareDataForSubmission();
+
+      const token = getToken();
       
-      // Dans un cas réel, vous enverriez ces données à un serveur
-      // Par exemple avec axios ou fetch
-      console.log('Données du formulaire soumises:', dataToSubmit);
+      // Send the document
+      const response = await fetch("http://localhost:8080/documents", {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSubmit)
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error("Erreur lors de l'envoi du document");
+      }
+
+      const result = await response.json();
       
-      // Simuler un envoi réussi
+      // Create notification after successful document submission
+      await createNotification(dataToSubmit);
+      
       alert('Document envoyé avec succès!');
-      
-      // Réinitialiser le formulaire
+      console.log('Succès:', result);
+
+      // Reset form
       setFormData({
-        directionEnvoi: '',
-        autreDirectionEnvoi: '',
-        nomDocument: '',
-        nomStagiaire: '',
+        typeDocument: '',
+        autreTypeDocument: '',
+        stagiaire: '',
+        autreStagiaire: '',
         directionReception: '',
         autreDirectionReception: '',
         notes: ''
       });
-      
-      // Réinitialiser les états d'affichage
-      setShowAutreDirectionEnvoi(false);
+      setShowAutreTypeDocument(false);
+      setShowAutreStagiaire(false);
       setShowAutreDirectionReception(false);
+    } catch (err) {
+      console.error(err);
+      alert('Une erreur est survenue lors de l\'envoi du document');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Naviguer vers la page d'historique avec l'URL correcte
-  const goToHistorique = () => {
-    navigate('/documents/historique');
-  };
+  if (loading && directions.length === 0) return <div className="envoi-page-container">Chargement en cours...</div>;
+  if (error) return <div className="envoi-page-container">Erreur: {error}</div>;
 
   return (
     <div className="envoi-page-container">
-      <h1 className="envoi-page-title">
-        Signaler l'envoi d'un document
-      </h1>
-      
+      <h1 className="envoi-page-title">Signaler l'envoi d'un document</h1>
       <form onSubmit={handleSubmit}>
-        
-        {/* Deuxième ligne de 2 inputs */}
         <div className="envoi-form-row">
-          {/* Nom du stagiaire/apprenti */}
-          {/* Nom du document */}
+          {/* Type Document */}
           <div className="envoi-form-group">
-            <label htmlFor="directionReception" className="envoi-form-label">
-              Type du document :
-            </label>
+            <label htmlFor="typeDocument" className="envoi-form-label">Type du document :</label>
             <select
-              id="directionReception"
-              name="directionReception"
-              value={formData.directionReception}
+              id="typeDocument"
+              name="typeDocument"
+              value={formData.typeDocument}
               onChange={handleChange}
               className="envoi-form-select"
+              disabled={loading}
             >
-              <option value="">Sélectionnez type du document</option>
-              {directionOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              <option value="">Sélectionnez le type</option>
+              {documentTypeOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
             </select>
-            {errors.directionReception && (
-              <p className="envoi-form-error">{errors.directionReception}</p>
+            {errors.typeDocument && <p className="envoi-form-error">{errors.typeDocument}</p>}
+            {showAutreTypeDocument && (
+              <input
+                type="text"
+                name="autreTypeDocument"
+                value={formData.autreTypeDocument}
+                onChange={handleChange}
+                placeholder="Précisez le type de document"
+                className="envoi-form-input"
+              />
             )}
-            
-            {showAutreDirectionReception && (
-              <div className="autre-direction-input">
-                <input
-                  type="text"
-                  id="autreDirectionReception"
-                  name="autreDirectionReception"
-                  value={formData.autreDirectionReception}
-                  onChange={handleChange}
-                  placeholder="Précisez la direction de réception"
-                  className="envoi-form-input"
-                />
-                {errors.autreDirectionReception && (
-                  <p className="envoi-form-error">{errors.autreDirectionReception}</p>
-                )}
-              </div>
-            )}
+            {errors.autreTypeDocument && <p className="envoi-form-error">{errors.autreTypeDocument}</p>}
           </div>
 
+          {/* Stagiaire */}
           <div className="envoi-form-group">
-            <label htmlFor="directionReception" className="envoi-form-label">
-              Stagiaire/Apprenti :
-            </label>
+            <label htmlFor="stagiaire" className="envoi-form-label">Stagiaire/Apprenti :</label>
             <select
-              id="directionReception"
-              name="directionReception"
-              value={formData.directionReception}
+              id="stagiaire"
+              name="stagiaire"
+              value={formData.stagiaire}
               onChange={handleChange}
               className="envoi-form-select"
+              disabled={loading}
             >
-              <option value="">Sélectionnez le stagiaire ou l'apprenti</option>
-              {directionOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
+              <option value="">Sélectionnez un stagiaire</option>
+              {stagiaires.map((t, i) => (
+                <option key={i} value={`${t.prenom} ${t.nom}`}>
+                  {`${t.prenom} ${t.nom} (${t.type})`}
+                </option>
               ))}
+              <option value="Autre">Autre</option>
             </select>
-            {errors.directionReception && (
-              <p className="envoi-form-error">{errors.directionReception}</p>
+            {errors.stagiaire && <p className="envoi-form-error">{errors.stagiaire}</p>}
+            {showAutreStagiaire && (
+              <input
+                type="text"
+                name="autreStagiaire"
+                value={formData.autreStagiaire}
+                onChange={handleChange}
+                placeholder="Précisez le stagiaire/apprenti"
+                className="envoi-form-input"
+              />
             )}
-            
-            {showAutreDirectionReception && (
-              <div className="autre-direction-input">
-                <input
-                  type="text"
-                  id="autreDirectionReception"
-                  name="autreDirectionReception"
-                  value={formData.autreDirectionReception}
-                  onChange={handleChange}
-                  placeholder="Précisez la direction de réception"
-                  className="envoi-form-input"
-                />
-                {errors.autreDirectionReception && (
-                  <p className="envoi-form-error">{errors.autreDirectionReception}</p>
-                )}
-              </div>
-            )}
+            {errors.autreStagiaire && <p className="envoi-form-error">{errors.autreStagiaire}</p>}
           </div>
-          
-          {/* Direction qui reçoit le document */}
+
+          {/* Direction */}
           <div className="envoi-form-group">
-            <label htmlFor="directionReception" className="envoi-form-label">
-              Direction :
-            </label>
+            <label htmlFor="directionReception" className="envoi-form-label">Direction destinataire :</label>
             <select
               id="directionReception"
               name="directionReception"
               value={formData.directionReception}
               onChange={handleChange}
               className="envoi-form-select"
+              disabled={loading}
             >
               <option value="">Sélectionnez une direction</option>
-              {directionOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
+              {directions.map((d, i) => (
+                <option key={i} value={d.designation}>{d.designation}</option>
               ))}
+              <option value="Autre">Autre</option>
             </select>
-            {errors.directionReception && (
-              <p className="envoi-form-error">{errors.directionReception}</p>
-            )}
-            
+            {errors.directionReception && <p className="envoi-form-error">{errors.directionReception}</p>}
             {showAutreDirectionReception && (
-              <div className="autre-direction-input">
-                <input
-                  type="text"
-                  id="autreDirectionReception"
-                  name="autreDirectionReception"
-                  value={formData.autreDirectionReception}
-                  onChange={handleChange}
-                  placeholder="Précisez la direction de réception"
-                  className="envoi-form-input"
-                />
-                {errors.autreDirectionReception && (
-                  <p className="envoi-form-error">{errors.autreDirectionReception}</p>
-                )}
-              </div>
+              <input
+                type="text"
+                name="autreDirectionReception"
+                value={formData.autreDirectionReception}
+                onChange={handleChange}
+                placeholder="Précisez la direction"
+                className="envoi-form-input"
+              />
             )}
+            {errors.autreDirectionReception && <p className="envoi-form-error">{errors.autreDirectionReception}</p>}
           </div>
         </div>
-        
-        {/* Notes ou commentaires */}
+
+        {/* Current User Direction Info */}
+        {currentUserDirection && (
+          <div className="envoi-form-group">
+            <p className="current-direction-info">
+              <strong>Direction expéditrice:</strong> {currentUserDirection}
+            </p>
+          </div>
+        )}
+
+        {/* Notes */}
         <div className="envoi-form-group">
-          <label htmlFor="notes" className="envoi-form-label">
-            Notes ou commentaires:
-          </label>
+          <label htmlFor="notes" className="envoi-form-label">Notes ou commentaires :</label>
           <textarea
             id="notes"
             name="notes"
@@ -276,18 +403,18 @@ const EnvoiPage = () => {
             onChange={handleChange}
             rows="4"
             className="envoi-form-textarea"
+            disabled={loading}
           />
         </div>
-        
-        {/* Boutons d'action */}
+
         <div className="envoi-form-buttons">
           <button
             type="submit"
             className="envoi-form-button envoi-button-submit"
+            disabled={loading}
           >
-            Envoyer 
+            {loading ? 'Envoi en cours...' : 'Envoyer'}
           </button>
-          
         </div>
       </form>
     </div>

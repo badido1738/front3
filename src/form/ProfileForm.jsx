@@ -6,18 +6,41 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
     idUser: "",
     username: "",
     role: "",
-    motDePasse: ""
+    motDePasse: "",
+    idEmp: ""  // ajout du champ employé
   });
 
+  const [employes, setEmployes] = useState([]);
 
+  // Charger les employés depuis l'API au chargement
+  useEffect(() => {
+    async function fetchEmployes() {
+      try {
+        const res = await fetch("http://localhost:8080/employes", {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEmployes(data);
+        } else {
+          console.error("Erreur lors de la récupération des employés");
+        }
+      } catch (error) {
+        console.error("Erreur réseau lors de la récupération des employés :", error);
+      }
+    }
+    fetchEmployes();
+  }, []);
 
-
-  // Initialiser le formulaire avec les données existantes pour modification
+  // Initialiser le formulaire avec les données existantes
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
         motDePasse: initialData.motDePasse || "",
+        idEmp: initialData.idEmp || ""
       });
     }
   }, [initialData]);
@@ -26,7 +49,7 @@ function ProfileForm({ initialData, onSubmit, onCancel }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
   const action = initialData ? "modifier" : "ajouter";
@@ -36,12 +59,14 @@ const handleSubmit = async (e) => {
 
   try {
     const payload = {
-      ...formData
+      ...formData,
+      employe: { idEmp: formData.idEmp }
     };
+    delete payload.idEmp;
 
     console.log("Final payload:", payload);
 
-    const url = initialData 
+    const url = initialData
       ? `http://localhost:8080/utilisateurs/${initialData.idUser}`
       : "http://localhost:8080/auth/register";
 
@@ -60,50 +85,31 @@ const handleSubmit = async (e) => {
       body: JSON.stringify(payload),
     });
 
-    // First check if response is successful (status 200-299)
     if (response.ok) {
       try {
-        // Try to parse JSON only if there's content
         const data = response.status !== 204 ? await response.json() : null;
-        
-        console.log(`Profil ${initialData ? "modifié" : "ajouté"} avec succès:`, data);
-        
-        // Clear success message
         alert(`Profil ${initialData ? "modifié" : "ajouté"} avec succès!`);
-        
         onSubmit(data);
-        
         if (window.confirm(`Voulez-vous actualiser la page ?`)) {
           window.location.reload();
         }
-      } catch (jsonError) {
-        // This handles cases where response is OK but has no JSON body
-        console.log(`Operation succeeded but no data returned`);
+      } catch {
         alert(`Profil ${initialData ? "modifié" : "ajouté"} avec succès!`);
         onSubmit({});
       }
     } else {
-      // Handle error cases
       try {
         const errorData = await response.json();
-        const errorMessage = errorData.message || 
-                           errorData.error ||
-                           `Erreur ${response.status}: ${response.statusText}`;
-        
-        console.error("Erreur serveur:", errorMessage);
-        alert(`Erreur: ${errorMessage}`);
-
+        alert(`Erreur: ${errorData.message || errorData.error || response.statusText}`);
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem('token');
           window.location.href = '/login';
         }
-      } catch (parseError) {
-        console.error("Erreur lors de la lecture de la réponse:", parseError);
+      } catch {
         alert(`Erreur technique. Code: ${response.status}`);
       }
     }
   } catch (networkError) {
-    console.error("Erreur réseau:", networkError);
     alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
   }
 };
@@ -111,7 +117,6 @@ const handleSubmit = async (e) => {
   return (
     <div className="form-container">
       <div className="form-card">
-        {/* En-tête de formulaire avec l'icône X de fermeture */}
         <div className="form-app-header">
           <h2>{initialData ? "Modifier un profil" : "Ajouter un profil"}</h2>
           <button type="button" className="close-tab-button" onClick={onCancel} aria-label="Fermer">
@@ -124,7 +129,7 @@ const handleSubmit = async (e) => {
             {initialData && (
               <input type="hidden" name="idUser" value={formData.idUser} />
             )}
-            
+
             <div className="form-group">
               <label>Username :</label>
               <input
@@ -140,10 +145,10 @@ const handleSubmit = async (e) => {
 
             <div className="form-group">
               <label>Role :</label>
-              <select 
-                name="role" 
+              <select
+                name="role"
                 className="form-select"
-                value={formData.role} 
+                value={formData.role}
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le role -</option>
@@ -164,6 +169,25 @@ const handleSubmit = async (e) => {
                 value={formData.motDePasse}
                 onChange={handleChange}
               />
+            </div>
+
+            {/* Nouveau champ pour l'employé */}
+            <div className="form-group">
+              <label>Employé :</label>
+              <select
+                name="idEmp"
+                className="form-select"
+                value={formData.idEmp}
+                onChange={handleChange}
+                required
+              >
+                <option value="">-- Sélectionner un employé --</option>
+                {employes.map(emp => (
+                  <option key={emp.idEmp} value={emp.idEmp}>
+                    {emp.nom} {emp.prenom} - {emp.poste}
+                  </option>
+                ))}
+              </select>
             </div>
 
           </div>

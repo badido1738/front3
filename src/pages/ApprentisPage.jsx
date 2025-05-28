@@ -262,8 +262,7 @@ const handleDelete = async (id) => {
                   <td>{apprenti.nom}</td>
                   <td>{apprenti.prenom}</td>
                   <td>{apprenti.numeroCCP}</td>
-                  <td>{apprenti.specialite}</td>
-                  <td className="actions-cell">
+                  <td>{apprenti.specialite?.nom || 'N/A'}</td>                  <td className="actions-cell">
                     <button className="icon-button view-icon" onClick={() => handleDetails(apprenti)} data-tooltip="Consulter">
                       {iconView}
                     </button>

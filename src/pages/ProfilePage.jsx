@@ -9,33 +9,7 @@ function ProfilePage() {
   const [selectedProfile, setSelectedProfile] = useState(null);
  
   const [editingProfile, setEditingProfile] = useState(null);
-  const [profiles, setProfiles] = useState([
-    {
-      idUser: 1,
-      username: "ireten",
-      role: "directeur",
-      idEmp: "125"
-    },
-    {
-      idUser: 2,
-      username: "jdupont",
-      role: "chef de projet",
-      idEmp: "237"
-    },
-    {
-      idUser: 3,
-      username: "abenali",
-      role: "agent de circulation",
-      idEmp: "419"
-    },
-    {
-      idUser: 4,
-      username: "nawal",
-      role: "assistante",
-      idEmp: "562"
-    },
-   
-  ]);
+  const [profiles, setProfiles] = useState([]);
   // États pour la recherche
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("username");

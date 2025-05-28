@@ -82,7 +82,7 @@ export default function Header({ toggleSidebar, isSidebarOpen }) {
           onClick={() => navigate('/documents/circulation/notification')}
         >
           <BellRing size={20} />
-          <span className="notification-badge">3</span>
+          <span className="notification-badge">4</span>
         </button>
         
         {/* User dropdown */}

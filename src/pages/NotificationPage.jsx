@@ -1,148 +1,177 @@
 import React, { useState, useEffect } from 'react';
-import { FaCheck, FaTimes, FaBell, FaSearch, FaPaperPlane, FaInbox } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaSearch, FaPaperPlane, FaInbox } from 'react-icons/fa';
 import '../pages/Notification.css';
 
 const NotificationPage = () => {
-  // État pour les notifications
   const [notifications, setNotifications] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [notificationType, setNotificationType] = useState('received'); // 'received' ou 'sent'
+  const [currentUserDirection, setCurrentUserDirection] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('received'); // 'received' or 'sent'
 
-  // Données d'exemple - à remplacer par des appels API réels
+  // Fetch user profile and notifications
   useEffect(() => {
-    // Simuler le chargement des données depuis une API
-    const mockReceivedNotifications = [
-      {
-        id: 1,
-        sendingDirection: 'Ressources Humaines',
-        documentType: 'Convention de stage',
-        concernedPerson: 'Ahmed Benmoussa',
-        personType: 'stagiaire',
-        date: '2025-04-28',
-        status: 'non_recu',
-        viewed: false,
-        type: 'received'
-      },
-      {
-        id: 2,
-        sendingDirection: 'Formation',
-        documentType: 'Attestation de formation',
-        concernedPerson: 'Fatima Zahra',
-        personType: 'apprenti',
-        date: '2025-04-27',
-        status: 'recu',
-        viewed: true,
-        type: 'received'
-      }
-    ];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
 
-    const mockSentNotifications = [
-      {
-        id: 3,
-        receivingDirection: 'Direction Technique',
-        documentType: 'Fiche d\'évaluation',
-        concernedPerson: 'Karim El Amrani',
-        personType: 'stagiaire',
-        date: '2025-04-26',
-        status: 'pending',
-        viewed: false,
-        type: 'sent'
-      },
-      {
-        id: 4,
-        receivingDirection: 'Ressources Humaines',
-        documentType: 'Contrat d\'apprentissage',
-        concernedPerson: 'Hajar Bennani',
-        personType: 'apprenti',
-        date: '2025-04-25',
-        status: 'confirmed',
-        viewed: false,
-        type: 'sent'
+        // Fetch user profile to get direction
+        const profileResponse = await fetch('http://localhost:8080/utilisateurs/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!profileResponse.ok) throw new Error(`HTTP error! Status: ${profileResponse.status}`);
+        const profile = await profileResponse.json();
+        
+        if (profile?.designationDirection) {
+          setCurrentUserDirection(profile.designationDirection);
+        }
+
+        // Fetch all notifications using the correct endpoint
+        const notificationsResponse = await fetch('http://localhost:8080/notifications', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!notificationsResponse.ok) throw new Error(`HTTP error! Status: ${notificationsResponse.status}`);
+        setNotifications(await notificationsResponse.json());
+        
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
       }
-    ];
-    
-    setNotifications([...mockReceivedNotifications, ...mockSentNotifications]);
+    };
+
+    fetchData();
   }, []);
 
-  // Filtrer les notifications selon le type (reçues ou envoyées)
-  const getFilteredNotificationsByType = () => {
-    return notifications.filter(notification => 
-      notificationType === 'received' 
-        ? notification.type === 'received' 
-        : notification.type === 'sent'
-    );
+  // Filter notifications based on current tab and user direction
+  const getFilteredNotifications = () => {
+    if (!currentUserDirection) return [];
+
+    return notifications.filter(notification => {
+      const matchesSearch = 
+        (notification.sendingDirection || notification.receivingDirection || '')
+          .toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.documentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.concernedPerson.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Determine if notification belongs to current tab
+      const isSent = notification.sendingDirection === currentUserDirection;
+      const isReceived = notification.receivingDirection === currentUserDirection;
+      
+      const belongsToCurrentTab = 
+        (activeTab === 'sent' && isSent) || 
+        (activeTab === 'received' && isReceived);
+
+      if (!belongsToCurrentTab || !matchesSearch) return false;
+
+      // Apply status filter
+      if (filterStatus === 'all') return true;
+      if (filterStatus === 'non_vu') return !notification.viewed;
+      
+      if (activeTab === 'received') {
+        return filterStatus === 'recu' 
+          ? notification.status === 'recu' 
+          : notification.status === 'non_recu';
+      } else { // sent
+        return filterStatus === 'recu' 
+          ? notification.status === 'recu' 
+          : notification.status === 'non_recu';
+      }
+    });
   };
 
-  // Marquer une notification comme reçue (pour les notifications reçues)
-  const markAsReceived = (id) => {
-    setNotifications(prevNotifications => 
-      prevNotifications.map(notification => 
-        notification.id === id 
-          ? { ...notification, status: 'recu', viewed: true } 
-          : notification
-      )
-    );
-    console.log(`Document ${id} marqué comme reçu`);
-  };
+  // Updated function to use the correct API endpoints
+  const markAsReceived = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:8080/notifications/${id}/mark-received`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-  // Marquer une notification comme non reçue (pour les notifications reçues)
-  const markAsNotReceived = (id) => {
-    setNotifications(prevNotifications => 
-      prevNotifications.map(notification => 
-        notification.id === id 
-          ? { ...notification, status: 'non_recu', viewed: true } 
-          : notification
-      )
-    );
-    console.log(`Signal envoyé pour le document ${id} (non reçu)`);
-  };
-
-  // Filtrer les notifications en fonction des critères de recherche
-  const filteredNotifications = getFilteredNotificationsByType().filter(notification => {
-    const matchesSearch = 
-      (notification.sendingDirection || notification.receivingDirection || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      notification.documentType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      notification.concernedPerson.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterStatus === 'all') return matchesSearch;
-    if (notification.type === 'received') {
-      if (filterStatus === 'recu') return matchesSearch && notification.status === 'recu';
-      if (filterStatus === 'non_recu') return matchesSearch && notification.status === 'non_recu';
-    } else {
-      if (filterStatus === 'pending') return matchesSearch && notification.status === 'pending';
-      if (filterStatus === 'confirmed') return matchesSearch && notification.status === 'confirmed';
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      
+      // Update local state to reflect the change
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, status: 'recu', viewed: true } : n
+      ));
+    } catch (error) {
+      console.error("Error marking notification as received:", error);
+      alert("Erreur lors de la mise à jour du statut");
     }
-    if (filterStatus === 'non_vu') return matchesSearch && !notification.viewed;
-    
-    return matchesSearch;
-  });
+  };
 
-  // Formatter la date en format lisible
+  // Updated function to use the correct API endpoints
+  const markAsNotReceived = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:8080/notifications/${id}/mark-not-received`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      
+      // Update local state to reflect the change
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? { ...n, status: 'non_recu', viewed: true } : n
+      ));
+    } catch (error) {
+      console.error("Error marking notification as not received:", error);
+      alert("Erreur lors de la mise à jour du statut");
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
-  // Obtenir le nombre de notifications non lues par type
-  const getUnreadCount = (type) => {
-    return notifications.filter(n => !n.viewed && n.type === type).length;
+  const getUnreadCount = (tab) => {
+    if (!currentUserDirection) return 0;
+    return notifications.filter(n => 
+      !n.viewed && (
+        (tab === 'sent' && n.sendingDirection === currentUserDirection) ||
+        (tab === 'received' && n.receivingDirection === currentUserDirection)
+      )
+    ).length;
   };
+
+  if (loading) return <div className="page-container">Chargement en cours...</div>;
+  if (error) return <div className="page-container">Erreur: {error}</div>;
+
+  const filteredNotifications = getFilteredNotifications();
 
   return (
     <div className="page-container">
       <div className="notifications-header">
-
         <div className="notification-types">
           <button
-            className={`notification-type-btn ${notificationType === 'received' ? 'active' : ''}`}
-            onClick={() => setNotificationType('received')}
+            className={`notification-type-btn ${activeTab === 'received' ? 'active' : ''}`}
+            onClick={() => setActiveTab('received')}
           >
             <FaInbox /> Reçues ({getUnreadCount('received')})
           </button>
           <button
-            className={`notification-type-btn ${notificationType === 'sent' ? 'active' : ''}`}
-            onClick={() => setNotificationType('sent')}
+            className={`notification-type-btn ${activeTab === 'sent' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sent')}
           >
             <FaPaperPlane /> Envoyées ({getUnreadCount('sent')})
           </button>
@@ -152,13 +181,11 @@ const NotificationPage = () => {
       <div className="notifications-table-container">
         <div className="search-container">
           <div className="search-box">
-            <div className="search-icon">
-              <FaSearch />
-            </div>
+            <div className="search-icon"><FaSearch /></div>
             <input
               type="text"
               className="search-input"
-              placeholder={`Rechercher par ${notificationType === 'received' ? 'direction expéditrice' : 'direction destinataire'}, type de document ou personne concernée...`}
+              placeholder="Rechercher par direction, document ou personne..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -171,15 +198,15 @@ const NotificationPage = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
             >
               <option value="all">Tous</option>
-              {notificationType === 'received' ? (
+              {activeTab === 'received' ? (
                 <>
                   <option value="recu">Reçus</option>
                   <option value="non_recu">Non reçus</option>
                 </>
               ) : (
                 <>
-                  <option value="pending">En attente</option>
-                  <option value="confirmed">Confirmés</option>
+                  <option value="recu">Reçus</option>
+                  <option value="non_recu">Non reçus</option>
                 </>
               )}
               <option value="non_vu">Non vus</option>
@@ -190,52 +217,52 @@ const NotificationPage = () => {
         <table className="data-table notifications-table">
           <thead>
             <tr>
-              <th>{notificationType === 'received' ? 'Direction expéditrice' : 'Direction destinataire'}</th>
+              <th>{activeTab === 'received' ? 'Expéditeur' : 'Destinataire'}</th>
               <th>Type de document</th>
               <th>Personne concernée</th>
               <th>Type</th>
-              <th>Date {notificationType === 'received' ? 'd\'envoi' : 'd\'envoi'}</th>
+              <th>Date</th>
               <th>Statut</th>
-              {notificationType === 'received' && <th>Actions</th>}
+              {activeTab === 'received' && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notification) => (
-                <tr key={notification.id} className={notification.viewed ? '' : 'unread-notification'}>
-                  <td>{notification.sendingDirection || notification.receivingDirection}</td>
-                  <td>{notification.documentType}</td>
-                  <td>{notification.concernedPerson}</td>
+              filteredNotifications.map((n) => (
+                <tr key={n.id} className={n.viewed ? '' : 'unread-notification'}>
+                  <td>{activeTab === 'received' ? n.sendingDirection : n.receivingDirection}</td>
+                  <td>{n.documentType}</td>
+                  <td>{n.concernedPerson}</td>
                   <td>
-                    <span className={`person-type ${notification.personType}`}>
-                      {notification.personType === 'stagiaire' ? 'Stagiaire' : 'Apprenti'}
+                    <span className={`person-type ${n.personType}`}>
+                      {n.personType === 'stagiaire' ? 'Stagiaire' : 'Apprenti'}
                     </span>
                   </td>
-                  <td>{formatDate(notification.date)}</td>
+                  <td>{formatDate(n.date)}</td>
                   <td>
-                    {notification.type === 'received' ? (
-                      <span className={`status-tag ${notification.status === 'recu' ? 'status-recu' : 'status-non-recu'}`}>
-                        {notification.status === 'recu' ? 'Reçu' : 'Non reçu'}
+                    {activeTab === 'received' ? (
+                      <span className={`status-tag ${n.status === 'recu' ? 'status-recu' : 'status-non-recu'}`}>
+                        {n.status === 'recu' ? 'Reçu' : 'Non reçu'}
                       </span>
                     ) : (
-                      <span className={`status-tag ${notification.status === 'confirmed' ? 'status-confirmed' : 'status-pending'}`}>
-                        {notification.status === 'confirmed' ? 'Confirmé' : 'En attente'}
+                      <span className={`status-tag ${n.status === 'recu' ? 'status-recu' : 'status-non-recu'}`}>
+                        {n.status === 'recu' ? 'Reçu' : 'Non reçu'}
                       </span>
                     )}
                   </td>
-                  {notification.type === 'received' && (
+                  {activeTab === 'received' && (
                     <td className="actions-cell">
-                      <button
-                        className="icon-button receive-icon"
-                        data-tooltip="Marquer comme reçu"
-                        onClick={() => markAsReceived(notification.id)}
+                      <button 
+                        className="icon-button receive-icon" 
+                        onClick={() => markAsReceived(n.id)}
+                        title="Marquer comme reçu"
                       >
                         <FaCheck />
                       </button>
-                      <button
-                        className="icon-button not-receive-icon"
-                        data-tooltip="Signaler comme non reçu"
-                        onClick={() => markAsNotReceived(notification.id)}
+                      <button 
+                        className="icon-button not-receive-icon" 
+                        onClick={() => markAsNotReceived(n.id)}
+                        title="Signaler comme non reçu"
                       >
                         <FaTimes />
                       </button>
@@ -245,8 +272,10 @@ const NotificationPage = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={notificationType === 'received' ? 7 : 6} className="empty-table">
-                  Aucune notification ne correspond à vos critères de recherche
+                <td colSpan={activeTab === 'received' ? 7 : 6} className="empty-table">
+                  {currentUserDirection 
+                    ? "Aucune notification ne correspond à vos critères" 
+                    : "Chargement des informations utilisateur..."}
                 </td>
               </tr>
             )}
