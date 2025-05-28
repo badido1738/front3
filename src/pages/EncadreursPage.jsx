@@ -8,34 +8,29 @@ function EncadreursPage() {
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedEncadreur, setSelectedEncadreur] = useState(null);
-  
   const [editingEncadreur, setEditingEncadreur] = useState(null);
-  const [encadreurs, setEncadreurs] = useState([
-    {idEncd:1,
-    nom :"ouali",
-    prenom:"amel",
-    poste:"...",
-    email:"ouali@gmail.com",
-  }
-  ]);
+  const [encadreurs, setEncadreurs] = useState([]);
+  const [employes, setEmployes] = useState([]); // New state for employees
 
-
-
-  // États pour la recherche
+  // Search states
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("nom");
 
   useEffect(() => {
+    // Fetch encadrants
     fetch('http://localhost:8080/encadrants')
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        setEncadreurs(data);
-      })
+      .then(res => res.json())
+      .then(data => setEncadreurs(data))
+      .catch(error => console.error("Error fetching encadrants:", error));
+
+    // Fetch employees for selection
+    fetch('http://localhost:8080/employes')
+      .then(res => res.json())
+      .then(data => setEmployes(data))
+      .catch(error => console.error("Error fetching employes:", error));
   }, [])
 
-  // Icônes SVG intégrées
+  // SVG Icons (unchanged)
   const iconView = (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
       <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -70,9 +65,7 @@ function EncadreursPage() {
         });
   
         if (response.ok) {
-          window.location.reload();
-          setEncadreurs(encadreurs.filter(encadrant => encadrant.idEncd !== id));
-          console.log("Encadrant supprimé avec succès");
+          setEncadreurs(encadreurs.filter(encadrant => encadrant.id !== id));
         } else {
           const errorText = await response.text();
           console.error("Erreur lors de la suppression :", errorText);
@@ -108,33 +101,53 @@ function EncadreursPage() {
     setEditingEncadreur(null);
   };
 
-  // Cette fonction sera appelée après l'ajout ou la modification d'un encadreur
-  const handleFormSubmit = (formData) => {
-    if (editingEncadreur) {
-      // Mise à jour d'un encadreur existant
-      setEncadreurs(encadreurs.map(e => e.idEncd === editingEncadreur.idEncd ? { ...formData } : e));
-    } else {
-      // Ajout d'un nouveau encadreur
-      const newId = encadreurs.length > 0 ? Math.max(...encadreurs.map(e => e.idEncd)) + 1 : 1;
-      setEncadreurs([...encadreurs, { ...formData, idEncd: newId }]);
+  const handleFormSubmit = async (formData) => {
+    try {
+      const url = editingEncadreur 
+        ? `http://localhost:8080/encadrants/${editingEncadreur.id}`
+        : 'http://localhost:8080/encadrants';
+      
+      const method = editingEncadreur ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const updatedEncadrant = await response.json();
+        if (editingEncadreur) {
+          setEncadreurs(encadreurs.map(e => e.id === updatedEncadrant.id ? updatedEncadrant : e));
+        } else {
+          setEncadreurs([...encadreurs, updatedEncadrant]);
+        }
+        setShowForm(false);
+      } else {
+        console.error("Error saving encadrant");
+      }
+    } catch (error) {
+      console.error("Network error:", error);
     }
-    setShowForm(false);
   };
   
-  // Gérer les changements dans l'input de recherche
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Gérer les changements dans le critère de recherche
   const handleCriteriaChange = (e) => {
     setSearchCriteria(e.target.value);
   };
 
-  // Filtrer les encadreurs en fonction du terme de recherche et du critère
   const filteredEncadreurs = encadreurs.filter(encadreur => {
-    const value = encadreur[searchCriteria]?.toString().toLowerCase() || '';
-    return value.includes(searchTerm.toLowerCase());
+    // Search in encadrant properties and employee properties
+    const searchIn = searchCriteria === 'nom' || searchCriteria === 'prenom' || searchCriteria === 'poste'
+      ? encadreur.employe?.[searchCriteria]?.toString().toLowerCase() || ''
+      : encadreur[searchCriteria]?.toString().toLowerCase() || '';
+    
+    return searchIn.includes(searchTerm.toLowerCase());
   });
 
   return (
@@ -143,12 +156,14 @@ function EncadreursPage() {
         <div className="form-overlay">
           <div className="form-container">
             <div className="form-header">
-              
+              <h3>{editingEncadreur ? "Modifier Encadrant" : "Ajouter Encadrant"}</h3>
+              <button className="close-button" onClick={handleFormClose}>×</button>
             </div>
             <EncadreursForm 
               initialData={editingEncadreur} 
               onSubmit={handleFormSubmit} 
               onCancel={handleFormClose}
+              employes={employes} // Pass employees for selection
             />
           </div>
         </div>
@@ -162,23 +177,19 @@ function EncadreursPage() {
             <div className="details-container">
               <div className="detail-item">
                 <span className="detail-label">ID:</span>
-                <span className="detail-value">{selectedEncadreur.idEncd}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Nom:</span>
-                <span className="detail-value">{selectedEncadreur.nom}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Prénom:</span>
-                <span className="detail-value">{selectedEncadreur.prenom}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Poste:</span>
-                <span className="detail-value">{selectedEncadreur.poste}</span>
+                <span className="detail-value">{selectedEncadreur.id}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Email:</span>
                 <span className="detail-value">{selectedEncadreur.email}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Employé:</span>
+                <span className="detail-value">
+                  {selectedEncadreur.employe 
+                    ? `${selectedEncadreur.employe.prenom} ${selectedEncadreur.employe.nom} (${selectedEncadreur.employe.poste})`
+                    : 'Non assigné'}
+                </span>
               </div>
               <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
             </div>
@@ -191,7 +202,6 @@ function EncadreursPage() {
             <button className="btn-primary" onClick={handleAddNew}>+ Ajouter un encadreur</button>
           </div>
           
-          {/* Section de recherche */}
           <div className="search-container">
             <div className="search-box">
               <div className="search-icon">
@@ -229,11 +239,11 @@ function EncadreursPage() {
             </thead>
             <tbody>
               {filteredEncadreurs.map((encadreur) => (
-                <tr key={encadreur.idEncd}>
-                  <td>{encadreur.idEncd}</td>
-                  <td>{encadreur.nom}</td>
-                  <td>{encadreur.prenom}</td>
-                  <td>{encadreur.poste}</td>
+                <tr key={encadreur.id}>
+                  <td>{encadreur.id}</td>
+                  <td>{encadreur.employe?.nom || 'N/A'}</td>
+                  <td>{encadreur.employe?.prenom || 'N/A'}</td>
+                  <td>{encadreur.employe?.poste || 'N/A'}</td>
                   <td>{encadreur.email}</td>
                   <td className="actions-cell">
                     <button className="icon-button view-icon" onClick={() => handleDetails(encadreur)} data-tooltip="Consulter">
@@ -242,7 +252,7 @@ function EncadreursPage() {
                     <button className="icon-button edit-icon" onClick={() => handleEdit(encadreur)} data-tooltip="Modifier">
                       {iconEdit}
                     </button>
-                    <button className="icon-button delete-icon" onClick={() => handleDelete(encadreur.idEncd)} data-tooltip="Supprimer">
+                    <button className="icon-button delete-icon" onClick={() => handleDelete(encadreur.id)} data-tooltip="Supprimer">
                       {iconDelete}
                     </button>
                   </td>

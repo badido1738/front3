@@ -122,7 +122,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
         ...initialData,
         jourDeRecep: initialData.jourDeRecep ? initialData.jourDeRecep.split(',') : [],
         typeDePC: initialData.typeDePC ? initialData.typeDePC.split(',') : [],
-        idEncd: initialData.encadrant?.idEncd || "",
+        idEncd: initialData.encadrant?.id || "",
         idTheme: initialData.theme?.idTheme || "",
         idDirection: initialData.direction?.idDirection || "",
         idStage: initialData.idStage || initialData.idAS || ""
@@ -153,7 +153,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
         idEncd: undefined,
         idTheme: undefined,
         direction: formData.idDirection ? { idDirection: formData.idDirection } : null,
-        encadrant: formData.idEncd ? { idEncd: formData.idEncd } : null,
+        encadrant: formData.idEncd ? { id: formData.idEncd } : null, // Changed from idEncd to id
         theme: formData.idTheme ? { idTheme: formData.idTheme } : null
       };
 
@@ -194,6 +194,15 @@ function StageForm({ initialData, onSubmit, onCancel }) {
     }
   };
 
+  // Helper function to get encadrant display name
+  const getEncadrantDisplayName = (encadrant) => {
+    if (!encadrant) return "N/A";
+    if (encadrant.employe) {
+      return `${encadrant.employe.prenom} ${encadrant.employe.nom}`;
+    }
+    return encadrant.email || "Encadrant sans employé";
+  };
+
   return (
     <div className="form-container">
       <div className="form-card">
@@ -210,7 +219,6 @@ function StageForm({ initialData, onSubmit, onCancel }) {
               <input type="hidden" name="idStage" value={formData.idStage} />
             )}
 
-
             <div className="form-group">
               <label>Date de Début :</label>
               <input
@@ -219,6 +227,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-input"
                 value={formData.dateDebut}
                 onChange={handleChange}
+                required
               />
             </div>
 
@@ -230,9 +239,9 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-input"
                 value={formData.dateFin}
                 onChange={handleChange}
+                required
               />
             </div>
-
 
             <div className="form-group"> 
               <label>Jours de Réception :</label>
@@ -285,6 +294,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-select"
                 value={formData.type}
                 onChange={handleChange}
+                required
               >
                 <option value="">- Sélectionner le type -</option>
                 <option value="Stage Pratique">Stage Pratique</option>
@@ -299,6 +309,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-select"
                 value={formData.idDirection}
                 onChange={handleChange}
+                required
               >
                 <option value="">-- Sélectionner une direction --</option>
                 {directions.map((dir) => (
@@ -316,11 +327,13 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-select"
                 value={formData.idEncd}
                 onChange={handleChange}
+                required
               >
                 <option value="">-- Sélectionner un encadrant --</option>
                 {encadrants.map((enca) => (
-                  <option key={enca.idEncd} value={enca.idEncd}>
-                    {enca.nom} {enca.prenom}
+                  <option key={enca.id} value={enca.id}>
+                    {getEncadrantDisplayName(enca)}
+                    {enca.email ? ` (${enca.email})` : ''}
                   </option>
                 ))}
               </select>
@@ -333,6 +346,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 className="form-select"
                 value={formData.idTheme}
                 onChange={handleChange}
+                required
               >
                 <option value="">-- Sélectionner un thème --</option>
                 {themes.map((theme) => (

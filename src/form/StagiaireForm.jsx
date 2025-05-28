@@ -109,6 +109,7 @@ function StagiaireForm({ initialData, onSubmit, onCancel }) {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  console.log("Form data submitted:", formData);
   const action = initialData ? "modifier" : "ajouter";
   if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stagiaire ?`)) {
     return;
@@ -255,10 +256,11 @@ const handleSubmit = async (e) => {
                 onChange={handleChange}
               >
                 <option value="">- Sélectionner le niveau -</option>
-                <option value="premiére">premiére</option>
-                <option value="troisiéme">troisiéme</option>
-                <option value="quatrieme">quatrieme</option>
-                <option value="cinquéme">cinquéme</option>
+                <option value="premiére">Premiére</option>
+                <option value="deuxiéme">Deuxième</option>
+                <option value="troisiéme">Troisiéme</option>
+                <option value="quatrieme">Quatrieme</option>
+                <option value="cinquéme">Cinquéme</option>
               </select>
             </div>
 
@@ -307,7 +309,7 @@ const handleSubmit = async (e) => {
                 <option value="">- Sélectionner un stage -</option>
                 {stages.map((stage) => (
                   <option key={stage.idStage} value={stage.idStage}>
-                    {stage.titre}
+                    {stage.theme?.titre}
                   </option>
                 ))}
               </select>

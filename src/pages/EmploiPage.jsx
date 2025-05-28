@@ -19,9 +19,62 @@ function EmploiPage() {
     { id: 4, name: "Jeudi" },
     { id: 7, name: "Dimanche" }, 
   ];
+
+   const [stages, setStages] = useState([]);
+  const [stagiaires, setStagiaires] = useState([]);
+  const [apprentis, setApprentis] = useState([]);
+
+   useEffect(() => {
+    const token = localStorage.getItem('token');
+    // Charger les stages
+    fetch('http://localhost:8080/stages', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(setStages);
+
+    // Charger les stagiaires
+    fetch('http://localhost:8080/stagiaires', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(setStagiaires);
+
+    // Charger les apprentis
+    fetch('http://localhost:8080/apprentis', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(setApprentis);
+  }, []);
+
+  // Fonction pour charger les stagiaires/apprentis du jour sélectionné
+  const loadStagiairesForDay = (dayName) => {
+    // Trouver les stages qui ont ce jour dans jourDeRecep
+    const stagesForDay = stages.filter(stage =>
+      stage.jourDeRecep && stage.jourDeRecep.split(',').map(j => j.trim()).includes(dayName)
+    );
+     const stageIds = stagesForDay.map(s => s.idStage);
+
+    // Filtrer stagiaires et apprentis par idStage
+    const filteredStagiaires = stagiaires.filter(s => stageIds.includes(s.stage?.idStage));
+    const filteredApprentis = apprentis.filter(a => stageIds.includes(a.stage?.idStage));
+
+    // Fusionner et ajouter le type
+    const list = [
+      ...filteredStagiaires.map(s => ({ ...s, type: "Stagiaire" })),
+      ...filteredApprentis.map(a => ({ ...a, type: "Apprenti" }))
+    ];
+    setStagiairesList(list);
+  };
+
+    const handleDayClick = (day) => {
+    setSelectedDay(day);
+    loadStagiairesForDay(day.name);
+  };
   
   // Simuler des données pour les stagiaires (à remplacer par des appels API réels)
-  const mockStagiaires = {
+  /*const mockStagiaires = {
     1: [ // Lundi
       { id: "ST001", nom: "Benali", prenom: "Ahmed", type: "Apprenti", specialite: "Informatique" },
       { id: "ST002", nom: "Saidi", prenom: "Karim", type: "Stage Pratique", specialite: "Électronique" },
@@ -44,24 +97,11 @@ function EmploiPage() {
       { id: "ST005", nom: "Meziane", prenom: "Samira", type: "Stage PFE", specialite: "HSE" },
       { id: "ST006", nom: "Boudiaf", prenom: "Yacine", type: "Stage Pratique", specialite: "Mécanique" }
     ]
-  };
+  };*/
   
   // Fonction pour charger les stagiaires du jour sélectionné
-  const loadStagiairesForDay = (dayId) => {
-    // Dans une application réelle, vous feriez un appel API ici
-    // Exemple: axios.get(`/api/stagiaires?jour=${dayId}`)
-    
-    // Simuler un chargement de données
-    setTimeout(() => {
-      setStagiairesList(mockStagiaires[dayId] || []);
-    }, 300);
-  };
+
   
-  // Gérer le clic sur un jour
-  const handleDayClick = (day) => {
-    setSelectedDay(day);
-    loadStagiairesForDay(day.id);
-  };
   
   // Fonction pour afficher les détails d'un stagiaire
   const handleStagiaireClick = (stagiaire) => {
@@ -117,8 +157,7 @@ function EmploiPage() {
                       <td>{stagiaire.nom}</td>
                       <td>{stagiaire.prenom}</td>
                       <td>{stagiaire.type}</td>
-                      <td>{stagiaire.specialite}</td>
-                      <td>
+                      <td>{stagiaire.specialite?.nom || ""}</td>                      <td>
                         <button className="details-button">Détails</button>
                       </td>
                     </tr>
