@@ -20,29 +20,48 @@ function StagiairesPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch('http://localhost:8080/stagiaires', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return res.json();
-    })
-    .then(data => {
-      setStagiaires(data);
-    })
-    .catch(error => {
-      console.error('Error fetching stagiaires:', error);
-      // Optionally redirect to login if unauthorized
-      if (error.message.includes('403')) {
-        window.location.href = '/login';
-      }
-    });
-  }, []);
+    
+    // Fonction pour récupérer les stagiaires et apprentis
+    const fetchData = async () => {
+      try {
+        // Récupérer les stagiaires
+        const stagiairesResponse = await fetch('http://localhost:8080/stagiaires', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
 
+        // Récupérer les apprentis
+        const apprentisResponse = await fetch('http://localhost:8080/apprentis', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!stagiairesResponse.ok || !apprentisResponse.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const stagiairesData = await stagiairesResponse.json();
+        const apprentisData = await apprentisResponse.json();
+
+        // Filtrer les stagiaires qui ne sont pas apprentis
+        const stagiairesFiltres = stagiairesData.filter(stagiaire => 
+          !apprentisData.some(apprenti => apprenti.idAS === stagiaire.idAS)
+        );
+
+        setStagiaires(stagiairesFiltres);
+        setApprentis(apprentisData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (error.message.includes('403')) {
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
   // Icônes SVG intégrées
   const iconView = (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">

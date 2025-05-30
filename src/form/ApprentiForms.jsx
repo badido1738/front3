@@ -8,6 +8,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
     dateN: "",
     numTel: "",
     lieuN: "",
+    numCCP : "",
     email: "",
     niveauEtude: "",
     idStage: "",
@@ -93,6 +94,7 @@ function ApprentiForms({ initialData, onSubmit, onCancel }) {
         nom: initialData.nom || "",
         prenom: initialData.prenom || "",
         lieuN: initialData.lieuN || "",
+        numCCP: initialData.numCCP || "",
         dateN: initialData.dateN|| "",
         numTel: initialData.numTel || "",
         email: initialData.email || "",
@@ -123,6 +125,7 @@ const handleSubmit = async (e) => {
       prenom: formData.prenom,
       dateN: formData.dateN,
       lieuN: formData.lieuN,
+      numCCP: formData.numCCP,
       numTel: formData.numTel,
       email: formData.email,
       niveauEtude: formData.niveauEtude,
@@ -204,10 +207,10 @@ const handleSubmit = async (e) => {
               <label>Date de naissance :</label>
               <input 
                 type="date" 
-                name="dateNaissance" 
+                name="dateN" 
                 className="form-input"
                 //required 
-                value={formData.dateNaissance} 
+                value={formData.dateN} 
                 onChange={handleChange} 
               />
             </div>
@@ -229,11 +232,11 @@ const handleSubmit = async (e) => {
               <label>Numéro de téléphone :</label>
               <input 
                 type="tel" 
-                name="telephone" 
+                name="numTel" 
                 className="form-input"
                 placeholder="Entrer le numéro" 
                 //required 
-                value={formData.telephone} 
+                value={formData.numTel} 
                 onChange={handleChange} 
               />
             </div>
@@ -254,12 +257,12 @@ const handleSubmit = async (e) => {
             <div className="form-group">
               <label>Numéro CCP :</label>
               <input 
-                type="text" 
-                name="numeroCCP" 
+                type="tel" 
+                name="numCCP" 
                 className="form-input"
                 placeholder="Entrer le numéro CCP" 
                 //required 
-                value={formData.numeroCCP} 
+                value={formData.numCCP} 
                 onChange={handleChange} 
               />
             </div>

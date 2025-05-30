@@ -44,33 +44,33 @@ export default function MonthlyTraineesLineChart() {
         const response = await axios.get('http://localhost:8080/statistics/monthly-trainees');
         const apiData = response.data;
 
-        setChartData({
-          labels: apiData.map(item => `${item.month}/${item.year}`),
-          datasets: [
-            {
-              label: 'Stagiaires',
-              data: apiData.map(item => item.stagiaireCount),
-              borderColor: orangePalette.stagiaire,
-              backgroundColor: 'rgba(255, 140, 0, 0.1)',
-              borderWidth: 3,
-              tension: 0.3,
-              pointBackgroundColor: orangePalette.stagiaire,
-              pointRadius: 5,
-              pointHoverRadius: 7
-            },
-            {
-              label: 'Apprentis',
-              data: apiData.map(item => item.apprentiCount),
-              borderColor: orangePalette.apprenti, // Blue color
-              backgroundColor: 'rgba(0, 123, 255, 0.1)', // Light blue background
-              borderWidth: 3,
-              tension: 0.3,
-              pointBackgroundColor: orangePalette.apprenti, // Blue color
-              pointRadius: 5,
-              pointHoverRadius: 7
-            }
-          ]
-        });
+setChartData({
+  labels: apiData.map(item => `${item.month}/${item.year}`),
+  datasets: [
+    {
+      label: 'Apprentis',
+      data: apiData.map(item => item.stagiaireCount),
+      borderColor: orangePalette.apprenti, // Changé en bleu
+      backgroundColor: 'rgba(0, 123, 255, 0.1)', // Fond bleu clair
+      borderWidth: 3,
+      tension: 0.3,
+      pointBackgroundColor: orangePalette.apprenti, // Changé en bleu
+      pointRadius: 5,
+      pointHoverRadius: 7
+    },
+    {
+      label: 'Stagiaires',
+      data: apiData.map(item => item.apprentiCount),
+      borderColor: orangePalette.stagiaire, // Changé en orange
+      backgroundColor: 'rgba(255, 140, 0, 0.1)', // Fond orange clair
+      borderWidth: 3,
+      tension: 0.3,
+      pointBackgroundColor: orangePalette.stagiaire, // Changé en orange
+      pointRadius: 5,
+      pointHoverRadius: 7
+    }
+  ]
+});
       } catch (err) {
         setError(err.message);
       } finally {

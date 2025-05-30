@@ -9,40 +9,7 @@ function StagePage() {
   const [selectedStage, setSelectedStage] = useState(null);
   
   const [editingStage, setEditingStage] = useState(null);
-  const [stages, setStages] = useState([
-    {
-      idStage: 1,
-      dateDebut: "2025-02-15",
-      dateFin: "2025-07-15",
-      duree: "5 mois",
-      type: "Stage de fin d'études",
-      Direction: "direction de formation"
-    },
-    {
-      idStage: 2,
-      dateDebut: "2025-03-01",
-      dateFin: "2025-05-31",
-      duree: "3 mois",
-      type: "Stage d'observation",
-      Direction: "direction de système d'information"
-    },
-    {
-      idStage: 3,
-      dateDebut: "2025-04-01",
-      dateFin: "2025-07-30",
-      duree: "4 mois",
-      type: "Stage pratique",
-      Direction: "direction des ressources humaines"
-    },
-    {
-      idStage: 4,
-      dateDebut: "2025-05-15",
-      dateFin: "2025-11-15",
-      duree: "6 mois",
-      type: "Stage pratique",
-      Direction: "direction de formation"
-    }
-  ]);
+  const [stages, setStages] = useState([]);
   // États pour la recherche
   const [searchTerm, setSearchTerm] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("type");

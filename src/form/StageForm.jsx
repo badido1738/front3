@@ -299,6 +299,8 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 <option value="">- Sélectionner le type -</option>
                 <option value="Stage Pratique">Stage Pratique</option>
                 <option value="Stage PFE">Stage PFE</option>
+                <option value="Stage de Decouverte">Stage de Decouverte</option>
+                <option value="Stage d'Apprentissage">Stage d'Apprentissage</option>
               </select>
             </div>
 
