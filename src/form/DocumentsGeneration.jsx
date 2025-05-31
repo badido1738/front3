@@ -135,7 +135,7 @@ const refreshData = () => {
               value={item.idStage || item.idAS || item.idAS}
             >
               {selectedDocument === "priseEnCharge" 
-                ? `${item.type} - ID: ${item.idStage}`
+                ? `${item.type} - ID: ${item.idStage} (${item.theme?.titre || "Sans thème"})`
                 : selectedDocument === "attestation"
                 ? `${item.nom} ${item.prenom} - ID: ${item.idAS}`
                 : `${item.nom} ${item.prenom} - ID: ${item.idAS}`
@@ -172,9 +172,14 @@ const refreshData = () => {
     doc.setFontSize(12);
     doc.text('FICHE DE POSITION', 105, 15, { align: 'center' });
     doc.setFontSize(10);
-    doc.text(`Pointage de la période du : 01-12-${year} au : 31-12-${year}`, 105, 22, { align: 'center' });
-    doc.text(`Alger, le ${currentDate.getDate()}-${currentDate.getMonth() + 1}-${year}`, 160, 15);
-    doc.text('Page : 1/1', 160, 22);
+const day = String(currentDate.getDate()).padStart(2, '0');
+const monthNum = String(currentDate.getMonth() + 1).padStart(2, '0');
+doc.text(
+  `Pointage de la période du : 01-${monthNum}-${year} au : ${day}-${monthNum}-${year}`,
+  105,
+  22,
+  { align: 'center' }
+);    doc.text('Page : 1/1', 160, 22);
     
     // Informations de l'apprenti
     doc.setFontSize(10);
@@ -420,37 +425,60 @@ const generatePriseEnCharge = (stageId) => {
     
     // Structure d'encadrement
     doc.text('Structure d\'encadrement', 50, currentY + 7);
-    doc.rect(125, currentY + 3, 5, 5);
     doc.text('DC-DSI', 132, currentY + 7);
     
     // Nom et Prénom des stagiaires
     currentY += rowHeight;
     doc.line(45, currentY, 195, currentY);
     doc.text('Nom et Prénom des stagiaires', 50, currentY + 7);
-    doc.rect(125, currentY + 2, 65, 6);
-    doc.rect(125, currentY + 9, 65, 6);
 
-    // Affichage des stagiaires
-    if (stagiairesDuStage.length > 0) {
-        if (stagiairesDuStage[0]) {
-            doc.text(`${stagiairesDuStage[0].nom} ${stagiairesDuStage[0].prenom}`.trim(), 127, currentY + 6);
-        }
-        if (stagiairesDuStage[1]) {
-            doc.text(`${stagiairesDuStage[1].nom} ${stagiairesDuStage[1].prenom}`.trim(), 127, currentY + 13);
-        }
+
+
+
+// Affichage dynamique des stagiaires (2 par ligne : rectangles et noms)
+if (stagiairesDuStage.length > 0) {
+  let height = 2;
+  for (let i = 0; i < stagiairesDuStage.length; i += 2) {
+    // Premier rectangle (premier stagiaire de la ligne)
+    doc.rect(125, currentY + height, 30, 6);
+    // Deuxième rectangle (deuxième stagiaire de la ligne, si existe)
+    if (i + 1 < stagiairesDuStage.length) {
+      doc.rect(160, currentY + height, 30, 6);
     }
-    
-    // Thème de stage
-    currentY += rowHeight * 2;
-    doc.line(45, currentY, 195, currentY);
-    doc.text('Thème de stage', 50, currentY + 7);
-    doc.text(stage.theme || '', 125, currentY + 7);
-    
+    // Affichage des noms/prénoms
+    doc.text(
+      `${stagiairesDuStage[i].nom} ${stagiairesDuStage[i].prenom}`.trim(),
+      127,
+      currentY + height + 4
+    );
+    if (i + 1 < stagiairesDuStage.length) {
+      doc.text(
+        `${stagiairesDuStage[i + 1].nom} ${stagiairesDuStage[i + 1].prenom}`.trim(),
+        162,
+        currentY + height + 4
+      );
+    }
+    height += 6;
+  }
+}
+// Thème de stage
+currentY += rowHeight * 2;
+doc.line(45, currentY, 195, currentY);
+doc.text('Thème de stage', 50, currentY + 7);
+
+const themeText = stage.theme?.titre || '';
+const themeLines = doc.splitTextToSize(themeText, 60); // 60mm de large max
+
+// Affiche chaque ligne du thème à la suite, en sautant de 5 en 5 en Y
+themeLines.forEach((line, idx) => {
+  doc.text(line, 125, currentY + 7 + idx * 5);
+});
     // Encadreur
     currentY += rowHeight;
     doc.line(45, currentY, 195, currentY);
     doc.text('Nom de l\'encadreur', 50, currentY + 7);
-    doc.text(stage.encadreur || '', 125, currentY + 7);
+    doc.text(stage.encadrant?.nom  || '', 125, currentY + 7);
+    doc.text(stage.encadrant?.prenom || '', 160, currentY + 7);
     doc.text('N° poste', 150, currentY + 7);
     
     // Fonction
@@ -584,7 +612,7 @@ if (!stage) {
       doc.setFont('helvetica', 'normal');
       doc.text('A effectué un stage pratique ayant pour thème ', 15, 140);
       doc.setFont('helvetica', 'bold');
-      doc.text(`« ${stage.theme} ».`, 120, 140);
+      doc.text(`« ${stage.theme?.titre} ».`, 120, 140);
       
       doc.setFont('helvetica', 'normal');
       doc.text('A : ', 15, 155);
@@ -602,7 +630,6 @@ if (!stage) {
       
       doc.setFont('helvetica', 'bold');
       doc.text('Le Directeur Formation & Planification RH', 120, 220);
-      doc.text('F. KHERCHACHE', 120, 235);
       
       // Mention légale en bas (taille réduite)
       doc.setFontSize(9);

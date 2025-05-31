@@ -82,6 +82,36 @@
     font-size: 0.9rem;
     font-weight: 700;
   }
+
+.small-text {
+  font-size: 0.65em;
+  opacity: 0.8;
+  margin-top: 4px;
+  display: block;
+  font-weight: normal;
+}
+
+.status-tag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.status-recu {
+  background-color: #4ade80;
+  color: #064e3b;
+}
+
+.status-non-recu {
+  background-color: #f87171;
+  color: #7f1d1d;
+}
+
+.status-en-attente {
+  background-color: #ffd700;
+  color: #8b7355;
+}
   
   /* Animation pour les nouvelles notifications */
   @keyframes notification-pulse {

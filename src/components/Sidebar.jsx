@@ -43,17 +43,13 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
     setIsSidebarOpen(false);
   };
 
-  const handleParentClick = (menu, defaultPath) => {
-    setOpenSubMenus((prev) => ({
-      ...prev,
-      [menu]: !prev[menu]
-    }));
-
-    if (!openSubMenus[menu]) {
-      navigate(defaultPath);
-      setIsSidebarOpen(false);
-    }
-  };
+// Replace the existing handleParentClick function with this one
+const handleParentClick = (menu) => {
+  setOpenSubMenus((prev) => ({
+    ...prev,
+    [menu]: !prev[menu]
+  }));
+};
 
   return (
     <div className={`sidebar ${!isOpen ? "closed" : ""}`} onClick={(e) => e.stopPropagation()}>
@@ -68,11 +64,11 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
 
         {/* Stagiaire / Apprenti */}
         <div className="has-submenu">
-          <div
-            className={`menu-item ${["/stagiaires", "/apprentis"].includes(location.pathname) ? "active" : ""}`}
-            onClick={() => handleParentClick("stagiaires", "/stagiaires")}
-            style={{ cursor: "pointer" }}
-          >
+            <div
+              className={`menu-item ${["/stagiaires", "/apprentis"].includes(location.pathname) ? "active" : ""}`}
+              onClick={() => handleParentClick("stagiaires")}
+              style={{ cursor: "pointer" }}
+            >
             <Users size={20} /> {isOpen && <span>Stagiaire/Apprenti</span>}
             {isOpen && (
               <button
@@ -107,11 +103,11 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
 
         {/* Documents */}
         <div className="has-submenu">
-          <div
-            className={`menu-item ${["/documents", "/documents/circulation", "/documents/generation", "/documents/circulation/envoi", "/documents/circulation/notification"].includes(location.pathname) ? "active" : ""}`}
-            onClick={() => handleParentClick("documents", "/documents/circulation")}
-            style={{ cursor: "pointer" }}
-          >
+<div
+  className={`menu-item ${["/documents", "/documents/circulation", "/documents/generation", "/documents/circulation/envoi", "/documents/circulation/notification"].includes(location.pathname) ? "active" : ""}`}
+  onClick={() => handleParentClick("documents")}
+  style={{ cursor: "pointer" }}
+>
             <FileText size={20} /> {isOpen && <span>Documents</span>}
             {isOpen && (
               <button

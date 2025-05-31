@@ -4,27 +4,28 @@ import './EmploiPage.css';
 
 function EmploiPage() {
   const navigate = useNavigate();
-  
+
   // État pour stocker le jour sélectionné
   const [selectedDay, setSelectedDay] = useState(null);
-  
+
   // État pour stocker la liste des stagiaires/apprentis
   const [stagiairesList, setStagiairesList] = useState([]);
-  
-  // Simuler des données pour les jours de la semaine (à remplacer par vos données réelles)
+
+  // Jours de la semaine
   const daysOfWeek = [
     { id: 1, name: "Lundi" },
     { id: 2, name: "Mardi" },
     { id: 3, name: "Mercredi" },
     { id: 4, name: "Jeudi" },
-    { id: 7, name: "Dimanche" }, 
+    { id: 7, name: "Dimanche" },
   ];
 
-   const [stages, setStages] = useState([]);
+  const [stages, setStages] = useState([]);
   const [stagiaires, setStagiaires] = useState([]);
   const [apprentis, setApprentis] = useState([]);
 
-   useEffect(() => {
+  // Charger les données au montage
+  useEffect(() => {
     const token = localStorage.getItem('token');
     // Charger les stages
     fetch('http://localhost:8080/stages', {
@@ -48,75 +49,65 @@ function EmploiPage() {
       .then(setApprentis);
   }, []);
 
-  // Fonction pour charger les stagiaires/apprentis du jour sélectionné
-  const loadStagiairesForDay = (dayName) => {
-    // Trouver les stages qui ont ce jour dans jourDeRecep
-    const stagesForDay = stages.filter(stage =>
-      stage.jourDeRecep && stage.jourDeRecep.split(',').map(j => j.trim()).includes(dayName)
-    );
-     const stageIds = stagesForDay.map(s => s.idStage);
+const loadStagiairesForDay = (dayName) => {
+  // Trouver les stages qui ont ce jour dans jourDeRecep
+  const stagesForDay = stages.filter(stage =>
+    stage.jourDeRecep && stage.jourDeRecep.split(',').map(j => j.trim()).includes(dayName)
+  );
+  const stageIds = stagesForDay.map(s => s.idStage);
 
-    // Filtrer stagiaires et apprentis par idStage
-    const filteredStagiaires = stagiaires.filter(s => stageIds.includes(s.stage?.idStage));
-    const filteredApprentis = apprentis.filter(a => stageIds.includes(a.stage?.idStage));
+  // First, process apprentis
+  const apprentisForDay = apprentis
+    .filter(a => stageIds.includes(a.stage?.idStage))
+    .map(a => ({ 
+      ...a, 
+      type: 'APPRENTI',
+      id: a.idAS // Ensure consistent ID field
+    }));
 
-    // Fusionner et ajouter le type
-    const list = [
-      ...filteredStagiaires.map(s => ({ ...s, type: "Stagiaire" })),
-      ...filteredApprentis.map(a => ({ ...a, type: "Apprenti" }))
-    ];
-    setStagiairesList(list);
-  };
+  // Get IDs of apprentis to exclude from stagiaires
+  const apprentisIds = apprentisForDay.map(a => a.idAS);
 
-    const handleDayClick = (day) => {
+  // Process stagiaires, excluding those who are also apprentis
+  const stagiairesForDay = stagiaires
+    .filter(s => stageIds.includes(s.stage?.idStage) && !apprentisIds.includes(s.idAS))
+    .map(s => ({ 
+      ...s, 
+      type: 'STAGIAIRE',
+      id: s.idAS // Ensure consistent ID field
+    }));
+
+  // Combine filtered lists
+  const combinedList = [...apprentisForDay, ...stagiairesForDay];
+  setStagiairesList(combinedList);
+};
+
+  // Gérer le clic sur un jour
+  const handleDayClick = (day) => {
     setSelectedDay(day);
     loadStagiairesForDay(day.name);
   };
-  
-  // Simuler des données pour les stagiaires (à remplacer par des appels API réels)
-  /*const mockStagiaires = {
-    1: [ // Lundi
-      { id: "ST001", nom: "Benali", prenom: "Ahmed", type: "Apprenti", specialite: "Informatique" },
-      { id: "ST002", nom: "Saidi", prenom: "Karim", type: "Stage Pratique", specialite: "Électronique" },
-      { id: "ST003", nom: "Cherifi", prenom: "Lamia", type: "Stage PFE", specialite: "Informatique" }
-    ],
-    2: [ // Mardi
-      { id: "ST002", nom: "Saidi", prenom: "Karim", type: "Stage Pratique", specialite: "Électronique" },
-      { id: "ST004", nom: "Amari", prenom: "Sofiane", type: "Apprenti", specialite: "Automatisme" }
-    ],
-    3: [ // Mercredi
-      { id: "ST001", nom: "Benali", prenom: "Ahmed", type: "Apprenti", specialite: "Informatique" },
-      { id: "ST005", nom: "Meziane", prenom: "Samira", type: "Stage PFE", specialite: "HSE" }
-    ],
-    4: [ // Jeudi
-      { id: "ST003", nom: "Cherifi", prenom: "Lamia", type: "Stage PFE", specialite: "Informatique" },
-      { id: "ST004", nom: "Amari", prenom: "Sofiane", type: "Apprenti", specialite: "Automatisme" },
-      { id: "ST006", nom: "Boudiaf", prenom: "Yacine", type: "Stage Pratique", specialite: "Mécanique" }
-    ],
-    7: [ // Dimanche
-      { id: "ST005", nom: "Meziane", prenom: "Samira", type: "Stage PFE", specialite: "HSE" },
-      { id: "ST006", nom: "Boudiaf", prenom: "Yacine", type: "Stage Pratique", specialite: "Mécanique" }
-    ]
-  };*/
-  
-  // Fonction pour charger les stagiaires du jour sélectionné
 
-  
-  
+  // Recharger la liste si le jour sélectionné ou les données changent
+  useEffect(() => {
+    if (selectedDay) {
+      loadStagiairesForDay(selectedDay.name);
+    }
+    // eslint-disable-next-line
+  }, [selectedDay, stages, stagiaires, apprentis]);
+
   // Fonction pour afficher les détails d'un stagiaire
   const handleStagiaireClick = (stagiaire) => {
-    // Navigation vers la page de détails du stagiaire
-    // Selon votre structure d'application
     alert(`Voir les détails de ${stagiaire.nom} ${stagiaire.prenom}`);
     // navigate(`/stagiaires/${stagiaire.id}`);
   };
-  
+
   return (
     <div className="emploi-container">
       <h1 className="emploi-title">
         Emploi du Temps des Stagiaires et Apprentis
       </h1>
-      
+
       <div className="days-container">
         {daysOfWeek.map((day) => (
           <div
@@ -128,42 +119,39 @@ function EmploiPage() {
           </div>
         ))}
       </div>
-      
+
       <div className="stagiaires-section">
         <h3>
-          {selectedDay 
-            ? `Stagiaires/Apprentis du ${selectedDay.name}` 
+          {selectedDay
+            ? `Stagiaires/Apprentis du ${selectedDay.name}`
             : "Sélectionnez un jour pour voir les stagiaires/apprentis"}
         </h3>
-        
+
         <div className="stagiaires-list">
           {selectedDay ? (
             stagiairesList.length > 0 ? (
-              <table className="stagiaires-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Type</th>
-                    <th>Spécialité</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stagiairesList.map((stagiaire) => (
-                    <tr key={stagiaire.id} onClick={() => handleStagiaireClick(stagiaire)}>
-                      <td>{stagiaire.id}</td>
-                      <td>{stagiaire.nom}</td>
-                      <td>{stagiaire.prenom}</td>
-                      <td>{stagiaire.type}</td>
-                      <td>{stagiaire.specialite?.nom || ""}</td>                      <td>
-                        <button className="details-button">Détails</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+<table className="stagiaires-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Prénom</th>
+      <th>Type</th>
+      <th>Spécialité</th>
+    </tr>
+  </thead>
+  <tbody>
+    {stagiairesList.map((stagiaire) => (
+      <tr key={stagiaire.id}>
+        <td>{stagiaire.id}</td>
+        <td>{stagiaire.nom}</td>
+        <td>{stagiaire.prenom}</td>
+        <td>{stagiaire.type === 'APPRENTI' ? 'Apprenti' : 'Stagiaire'}</td>
+        <td>{stagiaire.specialite?.nom || ""}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
             ) : (
               <div className="no-stagiaires">
                 Aucun stagiaire/apprenti n'est prévu pour ce jour.

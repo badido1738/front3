@@ -427,6 +427,105 @@ button:active {
   outline: none;
 }
 
+.details-container {
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.details-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.details-container h4 {
+  color: #333;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #e76903;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-label {
+  font-weight: 600;
+  width: 200px;
+  color: #666;
+}
+
+.detail-value {
+  flex: 1;
+  color: #333;
+}
+
+.details-footer {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.details-footer button {
+  background: linear-gradient(to right, #e76903, #f97316);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.details-footer button:hover {
+  background: linear-gradient(to right, #f97316, #ea580c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 105, 3, 0.25);
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.details-table th,
+.details-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.details-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #666;
+}
+
+.details-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.details-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
 /* Assure que le reste des styles s'adapte bien à l'écran */
 @media (max-width: 768px) {
   .envoi-form-row {

@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import Enca from "./Enca";
 import Dir from "./Dir";
 import Month from "./Month";
 import Etab from "./Etab";
 
+
 function StatApp() {
+   const [stats, setStats] = useState({
+    utilisateurs: 0,
+    stagiaires: 0,
+    apprentis: 0,
+    stagiairesJour: 0,
+    apprentisJour: 0
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    fetch('http://localhost:8080/statistics/counts', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+          }
+          throw new Error('Network response was not ok');
+        }
+        return res.json();
+      })
+      .then(setStats)
+      .catch(console.error);
+  }, []);
   return (
     <div style={{
       backgroundColor: '#f8f9fe',
@@ -18,11 +46,11 @@ function StatApp() {
         marginBottom: '24px',
         flexWrap: 'wrap'
       }}>
-        <StatCard number="04" label="Utilisateurs" color="#5352ed" />
-        <StatCard number="7" label="Total stagiaires" color="#4b7bec" />
-        <StatCard number="10" label="Total appentis" color="#3867d6" />
-        <StatCard number="03" label="Stagiaires du jour" color="#8c7ae6" />
-        <StatCard number="04" label="Apprentis du jour" color="#8c7ae8" />
+     <StatCard number={stats.utilisateurs} label="Utilisateurs" color="#5352ed" />
+      <StatCard number={stats.stagiaires} label="Total stagiaires" color="#4b7bec" />
+      <StatCard number={stats.apprentis} label="Total apprentis" color="#3867d6" />
+      <StatCard number={stats.stagiairesJour} label="Stagiaires du jour" color="#8c7ae6" />
+      <StatCard number={stats.apprentisJour} label="Apprentis du jour" color="#8c7ae8" />
       </div>
 
       {/* Charts Section */}

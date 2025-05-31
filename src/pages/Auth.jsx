@@ -66,39 +66,61 @@ function Auth() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
+          <button className="close-button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div className="auth-icon">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+          
           <h2>Connexion</h2>
-          <div className="auth-divider"></div>
+          <p className="auth-subtitle">Veuillez entrer vos identifiants</p>
         </div>
-        
+
         <form onSubmit={handleLogin} className="auth-form">
           <div className="form-group">
             <label htmlFor="username">Nom d'utilisateur</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="Entrez votre nom d'utilisateur"
-            />
+            <div className="input-container">
+              <svg className="input-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Entrez votre nom d'utilisateur"
+              />
+            </div>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Mot de passe</label>
-            <input
-              id="password"
-              type="password"
-              value={motDePasse}
-              onChange={(e) => setMotDePasse(e.target.value)}
-              required
-              placeholder="Entrez votre mot de passe"
-            />
+            <div className="input-container">
+              <svg className="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <input
+                id="password"
+                type="password"
+                value={motDePasse}
+                onChange={(e) => setMotDePasse(e.target.value)}
+                required
+                placeholder="Entrez votre mot de passe"
+              />
+            </div>
           </div>
-          
+
           <button type="submit" className="auth-button">
             Se connecter
           </button>
-          
+
           {errorMsg && (
             <div className="error-message">
               {errorMsg}

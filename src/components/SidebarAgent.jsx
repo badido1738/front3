@@ -55,17 +55,16 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
     }
   };
 
-  return (
+return (
     <div className={`sidebar ${!isOpen ? "closed" : ""}`} onClick={(e) => e.stopPropagation()}>
       {isOpen && (
         <h2 className="sidebar-title">Gestion de Stagiaires</h2>
       )}
       <nav className="sidebar-menu">
-
         {/* Documents */}
         <div className="has-submenu">
           <div
-            className={`menu-item ${["/documents", "/documents/circulation", "/documents/generation", "/documents/circulation/envoi", "/documents/circulation/notification"].includes(location.pathname) ? "active" : ""}`}
+            className={`menu-item ${["/documents/circulation", "/documents/circulation/envoi", "/documents/circulation/notification"].includes(location.pathname) ? "active" : ""}`}
             onClick={() => handleParentClick("documents", "/documents/circulation")}
             style={{ cursor: "pointer" }}
           >
@@ -128,15 +127,9 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
                   </Link>
                 </div>
               </div>
-              
-              <Link to="/documents/generation" className={`submenu-item ${location.pathname === "/documents/generation" ? "active" : ""}`} onClick={handleLinkClick}>
-                <FileText size={16} /> <span>Génération</span>
-              </Link>
             </div>
           )}
         </div>
-
-
       </nav>
       {isOpen && (
         <div className="sidebar-footer">

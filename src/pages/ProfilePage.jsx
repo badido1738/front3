@@ -208,7 +208,7 @@ const handleDelete = async (id) => {
               </div>
               <div className="detail-item">
                 <span className="detail-label">ID Employé:</span>
-                <span className="detail-value">{selectedProfile.idEmp}</span>
+                <span className="detail-value">{selectedProfile.employe?.idEmp}</span>
               </div>
               <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
             </div>
@@ -251,7 +251,7 @@ const handleDelete = async (id) => {
                 <th>ID</th>
                 <th>Nom</th>
                 <th>Rôle</th>
-                <th>ID Employé</th>
+                <th>Employé</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -261,7 +261,7 @@ const handleDelete = async (id) => {
                   <td>{profile.idUser}</td>
                   <td>{profile.username}</td>
                   <td>{profile.role}</td>
-                  <td>{profile.idEmp}</td>
+                  <td>{profile.employe?.nom} {profile.employe?.prenom}</td>
                   <td className="actions-cell">
                     <button className="icon-button view-icon" onClick={() => handleDetails(profile)} data-tooltip="Consulter">
                       {iconView}

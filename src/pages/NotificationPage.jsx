@@ -173,8 +173,11 @@ const NotificationPage = () => {
             className={`notification-type-btn ${activeTab === 'sent' ? 'active' : ''}`}
             onClick={() => setActiveTab('sent')}
           >
-            <FaPaperPlane /> Envoyées ({getUnreadCount('sent')})
-          </button>
+  <div>
+    <FaPaperPlane /> Envoyées
+  </div>
+  <span className="small-text">({getUnreadCount('sent')}) En attente</span>    
+        </button>
         </div>
       </div>
 
@@ -240,15 +243,19 @@ const NotificationPage = () => {
                   </td>
                   <td>{formatDate(n.date)}</td>
                   <td>
-                    {activeTab === 'received' ? (
-                      <span className={`status-tag ${n.status === 'recu' ? 'status-recu' : 'status-non-recu'}`}>
-                        {n.status === 'recu' ? 'Reçu' : 'Non reçu'}
-                      </span>
-                    ) : (
-                      <span className={`status-tag ${n.status === 'recu' ? 'status-recu' : 'status-non-recu'}`}>
-                        {n.status === 'recu' ? 'Reçu' : 'Non reçu'}
-                      </span>
-                    )}
+                    <span className={`status-tag ${
+                      n.status === 'recu' 
+                        ? 'status-recu' 
+                        : !n.viewed 
+                          ? 'status-en-attente' 
+                          : 'status-non-recu'
+                    }`}>
+                      {n.status === 'recu' 
+                        ? 'Reçu' 
+                        : !n.viewed 
+                          ? 'En attente' 
+                          : 'Non reçu'}
+                    </span>
                   </td>
                   {activeTab === 'received' && (
                     <td className="actions-cell">

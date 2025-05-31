@@ -10,6 +10,7 @@ function StagiairesPage() {
   const [selectedStagiaire, setSelectedStagiaire] = useState(null);
 
   const [editingStagiaire, setEditingStagiaire] = useState(null);
+  const [apprentis, setApprentis] = useState([]);
   const [stagiaires, setStagiaires] = useState([]);
 
 
@@ -44,6 +45,10 @@ function StagiairesPage() {
 
         const stagiairesData = await stagiairesResponse.json();
         const apprentisData = await apprentisResponse.json();
+
+      console.log("Fetched stagiaires:", stagiairesData);
+      console.log("Fetched apprentis:", apprentisData);
+
 
         // Filtrer les stagiaires qui ne sont pas apprentis
         const stagiairesFiltres = stagiairesData.filter(stagiaire => 
@@ -198,29 +203,99 @@ const handleDelete = async (id) => {
               <h3>Détails du stagiaire</h3>
               <button className="close-button" onClick={handleDetailsClose}>×</button>
             </div>
-            <div className="details-container">
-              <div className="detail-item">
-                <span className="detail-label">ID:</span>
-                <span className="detail-value">{selectedStagiaire.idAS}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Nom:</span>
-                <span className="detail-value">{selectedStagiaire.nom}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Prénom:</span>
-                <span className="detail-value">{selectedStagiaire.prenom}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Numéro de stage:</span>
-                <span className="detail-value">{selectedStagiaire.idStage}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Spécialité:</span>
-                <span className="detail-value">{selectedStagiaire.idSpecialite}</span>
-              </div>
-              <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
-            </div>
+<div className="details-container">
+  <h4>Informations personnelles</h4>
+  <div className="details-section">
+    <div className="detail-item">
+      <span className="detail-label">ID:</span>
+      <span className="detail-value">{selectedStagiaire.idAS}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Nom:</span>
+      <span className="detail-value">{selectedStagiaire.nom}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Prénom:</span>
+      <span className="detail-value">{selectedStagiaire.prenom}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Date de naissance:</span>
+      <span className="detail-value">{selectedStagiaire.dateN}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Lieu de naissance:</span>
+      <span className="detail-value">{selectedStagiaire.lieuN}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Email:</span>
+      <span className="detail-value">{selectedStagiaire.email || 'Non renseigné'}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Téléphone:</span>
+      <span className="detail-value">{selectedStagiaire.numTel || 'Non renseigné'}</span>
+    </div>
+  </div>
+
+  <h4>Informations académiques</h4>
+  <div className="details-section">
+    <div className="detail-item">
+      <span className="detail-label">Niveau d'étude:</span>
+      <span className="detail-value">{selectedStagiaire.niveauEtude}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Spécialité:</span>
+      <span className="detail-value">{selectedStagiaire.specialite?.nom}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Établissement:</span>
+      <span className="detail-value">{selectedStagiaire.etablissement?.nomEtab}</span>
+    </div>
+  </div>
+
+  <h4>Informations du stage</h4>
+  <div className="details-section">
+    <div className="detail-item">
+      <span className="detail-label">Numéro de stage:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.idStage}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Type de stage:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.type}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Date de début:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.dateDebut}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Date de fin:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.dateFin}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Thème:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.theme?.titre}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Description du thème:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.theme?.description}</span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Encadrant:</span>
+      <span className="detail-value">
+        {selectedStagiaire.stage?.encadrant?.employe 
+          ? `${selectedStagiaire.stage.encadrant.employe.nom} ${selectedStagiaire.stage.encadrant.employe.prenom}`
+          : selectedStagiaire.stage?.encadrant?.email || 'Non assigné'}
+      </span>
+    </div>
+    <div className="detail-item">
+      <span className="detail-label">Direction:</span>
+      <span className="detail-value">{selectedStagiaire.stage?.direction?.designation}</span>
+    </div>
+  </div>
+
+  <div className="details-footer">
+    <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
+  </div>
+</div>
           </div>
         </div>
       ) : (
@@ -249,8 +324,8 @@ const handleDelete = async (id) => {
               <select value={searchCriteria} onChange={handleCriteriaChange}>
                 <option value="nom">Nom</option>
                 <option value="prenom">Prénom</option>
-                <option value="idStage">Numéro de stage</option>
-                <option value="idSpecialite">Spécialité</option>
+                <option value="stage?.idStage">Numéro de stage</option>
+                <option value="specialite?.nom">Spécialité</option>
               </select>
             </div>
           </div>
@@ -272,8 +347,8 @@ const handleDelete = async (id) => {
                   <td>{stagiaire.idAS}</td>
                   <td>{stagiaire.nom}</td>
                   <td>{stagiaire.prenom}</td>
-                  <td>{stagiaire.idStage}</td>
-                  <td>{stagiaire.idSpecialite}</td>
+                  <td>{stagiaire.stage?.idStage}</td>
+                  <td>{stagiaire.specialite?.nom}</td>
                   <td className="actions-cell">
                     <button className="icon-button view-icon" onClick={() => handleDetails(stagiaire)} data-tooltip="Consulter">
                       {iconView}

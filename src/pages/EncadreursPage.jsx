@@ -10,7 +10,7 @@ function EncadreursPage() {
   const [selectedEncadreur, setSelectedEncadreur] = useState(null);
   const [editingEncadreur, setEditingEncadreur] = useState(null);
   const [encadreurs, setEncadreurs] = useState([]);
-  const [employes, setEmployes] = useState([]); // New state for employees
+  const [employes, setEmployes] = useState([]);
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -63,9 +63,12 @@ function EncadreursPage() {
         const response = await fetch(`http://localhost:8080/encadrants/${id}`, {
           method: "DELETE",
         });
-  
+
         if (response.ok) {
           setEncadreurs(encadreurs.filter(encadrant => encadrant.id !== id));
+        } else if (response.status === 500) {
+          // Vérifier si l'encadrant est lié à un stage
+          alert("Impossible de supprimer : cet encadrant est lié à un ou plusieurs stages.");
         } else {
           const errorText = await response.text();
           console.error("Erreur lors de la suppression :", errorText);
@@ -163,7 +166,7 @@ function EncadreursPage() {
               initialData={editingEncadreur} 
               onSubmit={handleFormSubmit} 
               onCancel={handleFormClose}
-              employes={employes} // Pass employees for selection
+              employes={employes}
             />
           </div>
         </div>

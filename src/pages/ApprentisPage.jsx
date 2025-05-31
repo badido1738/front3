@@ -140,11 +140,11 @@ const handleDelete = async (id) => {
   const handleFormSubmit = (formData) => {
     if (editingApprenti) {
       // Mise à jour d'un apprenti existant
-      setApprentis(apprentis.map(a => a.idApprenti === editingApprenti.idApprenti ? { ...formData } : a));
+      setApprentis(apprentis.map(a => a.idAS === editingApprenti.idAS ? { ...formData } : a));
     } else {
       // Ajout d'un nouveau apprenti
-      const newId = apprentis.length > 0 ? Math.max(...apprentis.map(a => a.idApprenti)) + 1 : 1;
-      setApprentis([...apprentis, { ...formData, idApprenti: newId }]);
+      const newId = apprentis.length > 0 ? Math.max(...apprentis.map(a => a.idAS)) + 1 : 1;
+      setApprentis([...apprentis, { ...formData, idAS: newId }]);
     }
     setShowForm(false);
   };
@@ -188,27 +188,101 @@ const handleDelete = async (id) => {
               <button className="close-button" onClick={handleDetailsClose}>×</button>
             </div>
             <div className="details-container">
-              <div className="detail-item">
-                <span className="detail-label">ID:</span>
-                <span className="detail-value">{selectedApprenti.idApprenti}</span>
+              <h4>Informations personnelles</h4>
+              <div className="details-section">
+                <div className="detail-item">
+                  <span className="detail-label">ID:</span>
+                  <span className="detail-value">{selectedApprenti.idAS}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Nom:</span>
+                  <span className="detail-value">{selectedApprenti.nom}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Prénom:</span>
+                  <span className="detail-value">{selectedApprenti.prenom}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Date de naissance:</span>
+                  <span className="detail-value">{selectedApprenti.dateN}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Lieu de naissance:</span>
+                  <span className="detail-value">{selectedApprenti.lieuN}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{selectedApprenti.email || 'Non renseigné'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Téléphone:</span>
+                  <span className="detail-value">{selectedApprenti.numTel || 'Non renseigné'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Numéro CCP:</span>
+                  <span className="detail-value">{selectedApprenti.numCCP || 'Non renseigné'}</span>
+                </div>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Nom:</span>
-                <span className="detail-value">{selectedApprenti.nom}</span>
+
+              <h4>Informations académiques</h4>
+              <div className="details-section">
+                <div className="detail-item">
+                  <span className="detail-label">Niveau d'étude:</span>
+                  <span className="detail-value">{selectedApprenti.niveauEtude}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Spécialité:</span>
+                  <span className="detail-value">{selectedApprenti.specialite?.nom}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Établissement:</span>
+                  <span className="detail-value">{selectedApprenti.etablissement?.nomEtab}</span>
+                </div>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Prénom:</span>
-                <span className="detail-value">{selectedApprenti.prenom}</span>
+
+              <h4>Informations du stage</h4>
+              <div className="details-section">
+                <div className="detail-item">
+                  <span className="detail-label">Numéro de stage:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.idStage}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Type de stage:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.type}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Date de début:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.dateDebut}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Date de fin:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.dateFin}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Thème:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.theme?.titre}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Description du thème:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.theme?.description}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Encadrant:</span>
+                  <span className="detail-value">
+                    {selectedApprenti.stage?.encadrant?.employe 
+                      ? `${selectedApprenti.stage.encadrant.employe.nom} ${selectedApprenti.stage.encadrant.employe.prenom}`
+                      : selectedApprenti.stage?.encadrant?.email || 'Non assigné'}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Direction:</span>
+                  <span className="detail-value">{selectedApprenti.stage?.direction?.designation}</span>
+                </div>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Numéro CCP:</span>
-                <span className="detail-value">{selectedApprenti.numeroCCP}</span>
+
+              <div className="details-footer">
+                <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
               </div>
-              <div className="detail-item">
-                <span className="detail-label">Spécialité:</span>
-                <span className="detail-value">{selectedApprenti.specialite}</span>
-              </div>
-              <button className="btn-primary" onClick={handleDetailsClose}>Fermer</button>
             </div>
           </div>
         </div>
@@ -238,7 +312,7 @@ const handleDelete = async (id) => {
               <select value={searchCriteria} onChange={handleCriteriaChange}>
                 <option value="nom">Nom</option>
                 <option value="prenom">Prénom</option>
-                <option value="numeroCCP">Numéro CCP</option>
+                <option value="stage">Numéro de stage</option>
                 <option value="specialite">Spécialité</option>
               </select>
             </div>
@@ -250,31 +324,32 @@ const handleDelete = async (id) => {
                 <th>ID</th>
                 <th>Nom</th>
                 <th>Prénom</th>
-                <th>Numéro CCP</th>
+                <th>Numéro de stage</th>
                 <th>Spécialité</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredApprentis.map((apprenti) => (
-                <tr key={apprenti.idApprenti}>
-                  <td>{apprenti.idApprenti}</td>
-                  <td>{apprenti.nom}</td>
-                  <td>{apprenti.prenom}</td>
-                  <td>{apprenti.numeroCCP}</td>
-                  <td>{apprenti.specialite?.nom || 'N/A'}</td>                  <td className="actions-cell">
-                    <button className="icon-button view-icon" onClick={() => handleDetails(apprenti)} data-tooltip="Consulter">
-                      {iconView}
-                    </button>
-                    <button className="icon-button edit-icon" onClick={() => handleEdit(apprenti)} data-tooltip="Modifier">
-                      {iconEdit}
-                    </button>
-                    <button className="icon-button delete-icon" onClick={() => handleDelete(apprenti.idAS)} data-tooltip="Supprimer">
-                      {iconDelete}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                  <tr key={apprenti.idAS}>
+                    <td>{apprenti.idAS}</td>
+                    <td>{apprenti.nom}</td>
+                    <td>{apprenti.prenom}</td>
+                    <td>{apprenti.stage?.idStage}</td>
+                    <td>{apprenti.specialite?.nom || 'N/A'}</td>
+                    <td className="actions-cell">
+                      <button className="icon-button view-icon" onClick={() => handleDetails(apprenti)} data-tooltip="Consulter">
+                        {iconView}
+                      </button>
+                      <button className="icon-button edit-icon" onClick={() => handleEdit(apprenti)} data-tooltip="Modifier">
+                        {iconEdit}
+                      </button>
+                      <button className="icon-button delete-icon" onClick={() => handleDelete(apprenti.idAS)} data-tooltip="Supprimer">
+                        {iconDelete}
+                      </button>
+                    </td>
+                  </tr>
+                                ))}
               {filteredApprentis.length === 0 && (
                 <tr>
                   <td colSpan="6" className="empty-table">

@@ -17,14 +17,40 @@ function StageForm({ initialData, onSubmit, onCancel }) {
   const [directions, setDirections] = useState([]);
   const [encadrants, setEncadrants] = useState([]);
   const [themes, setThemes] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [showThemeForm, setShowThemeForm] = useState(false);
+  const [showDirectionForm, setShowDirectionForm] = useState(false);
+  const [newTheme, setNewTheme] = useState({
+    titre: '',
+    description: ''
+  });
+  const [newDirection, setNewDirection] = useState({
+    designation: ''
+  });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+// Update handleChange function
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  
+  if (name === 'idTheme' && value === 'autre') {
+    setShowThemeForm(true);
+    return;
+  }
+  
+  if (name === 'idDirection' && value === 'autre') {
+    setShowDirectionForm(true);
+    return;
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+  setErrors(prev => ({
+    ...prev,
+    [name]: undefined
+  }));
+};
 
   useEffect(() => {
     const fetchThemes = async () => {
@@ -130,8 +156,115 @@ function StageForm({ initialData, onSubmit, onCancel }) {
     }
   }, [initialData]);
 
+  // --- VALIDATION ---
+  const validate = () => {
+    const newErrors = {};
+
+    // Date de début
+    if (!formData.dateDebut) {
+      newErrors.dateDebut = "La date de début est requise.";
+    } else if (isNaN(new Date(formData.dateDebut))) {
+      newErrors.dateDebut = "Date de début invalide.";
+    }
+
+    // Date de fin
+    if (!formData.dateFin) {
+      newErrors.dateFin = "La date de fin est requise.";
+    } else if (isNaN(new Date(formData.dateFin))) {
+      newErrors.dateFin = "Date de fin invalide.";
+    }
+
+    // Cohérence des dates
+    if (
+      formData.dateDebut &&
+      formData.dateFin &&
+      new Date(formData.dateFin) < new Date(formData.dateDebut)
+    ) {
+      newErrors.dateFin = "La date de fin doit être postérieure ou égale à la date de début.";
+    }
+
+       // Jour de réception : au moins un coché
+    if (!formData.jourDeRecep || formData.jourDeRecep.length === 0) {
+      newErrors.jourDeRecep = "Veuillez cocher au moins un jour de réception.";
+    }
+
+    // Type de prise en charge : au moins un coché
+    if (!formData.typeDePC || formData.typeDePC.length === 0) {
+      newErrors.typeDePC = "Veuillez cocher au moins un type de prise en charge.";
+    }
+
+    // Type
+    if (!formData.type) {
+      newErrors.type = "Le type de stage est requis.";
+    }
+
+    // Direction
+    if (!formData.idDirection) {
+      newErrors.idDirection = "La direction est requise.";
+    }
+
+    // Encadrant
+    if (!formData.idEncd) {
+      newErrors.idEncd = "L'encadrant est requis.";
+    }
+
+    // Thème
+    if (!formData.idTheme) {
+      newErrors.idTheme = "Le thème est requis.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+const handleAddTheme = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch("http://localhost:8080/themes", {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newTheme)
+    });
+    const data = await response.json();
+    setThemes([...themes, data]);
+    setFormData({ ...formData, idTheme: data.idTheme });
+    setShowThemeForm(false);
+    setNewTheme({ titre: '', description: '' });
+  } catch (error) {
+    console.error("Error adding theme:", error);
+    alert("Erreur lors de l'ajout du thème");
+  }
+};
+
+const handleAddDirection = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await fetch("http://localhost:8080/directions", {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newDirection)
+    });
+    const data = await response.json();
+    setDirections([...directions, data]);
+    setFormData({ ...formData, idDirection: data.idDirection });
+    setShowDirectionForm(false);
+    setNewDirection({ designation: '' });
+  } catch (error) {
+    console.error("Error adding direction:", error);
+    alert("Erreur lors de l'ajout de la direction");
+  }
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validate()) return;
 
     const action = initialData ? "modifier" : "ajouter";
     if (!window.confirm(`Êtes-vous sûr de vouloir ${action} ce stage ?`)) {
@@ -153,7 +286,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
         idEncd: undefined,
         idTheme: undefined,
         direction: formData.idDirection ? { idDirection: formData.idDirection } : null,
-        encadrant: formData.idEncd ? { id: formData.idEncd } : null, // Changed from idEncd to id
+        encadrant: formData.idEncd ? { id: formData.idEncd } : null,
         theme: formData.idTheme ? { idTheme: formData.idTheme } : null
       };
 
@@ -229,6 +362,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange}
                 required
               />
+              {errors.dateDebut && <span className="form-error">{errors.dateDebut}</span>}
             </div>
 
             <div className="form-group">
@@ -241,8 +375,10 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 onChange={handleChange}
                 required
               />
+              {errors.dateFin && <span className="form-error">{errors.dateFin}</span>}
             </div>
 
+            <div className="form-group"> 
             <div className="form-group"> 
               <label>Jours de Réception :</label>
               <div className="form-checkbox-group">
@@ -263,6 +399,7 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                   </label>
                 ))}
               </div>
+              {errors.jourDeRecep && <span className="form-error">{errors.jourDeRecep}</span>}
             </div>
 
             <div className="form-group">
@@ -285,7 +422,8 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                   </label>
                 ))}
               </div>
-            </div>
+              {errors.typeDePC && <span className="form-error">{errors.typeDePC}</span>}
+            </div>            </div>
 
             <div className="form-group">
               <label>Type :</label>
@@ -302,25 +440,44 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                 <option value="Stage de Decouverte">Stage de Decouverte</option>
                 <option value="Stage d'Apprentissage">Stage d'Apprentissage</option>
               </select>
+              {errors.type && <span className="form-error">{errors.type}</span>}
             </div>
 
-            <div className="form-group">
-              <label>Direction :</label>
-              <select
-                name="idDirection"
-                className="form-select"
-                value={formData.idDirection}
-                onChange={handleChange}
-                required
-              >
-                <option value="">-- Sélectionner une direction --</option>
-                {directions.map((dir) => (
-                  <option key={dir.idDirection} value={dir.idDirection}>
-                    {dir.designation}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="form-group">
+                <label>Direction :</label>
+                {!showDirectionForm ? (
+                  <select
+                    name="idDirection"
+                    className="form-select"
+                    value={formData.idDirection}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">-- Sélectionner une direction --</option>
+                    {directions.map((dir) => (
+                      <option key={dir.idDirection} value={dir.idDirection}>
+                        {dir.designation}
+                      </option>
+                    ))}
+                    <option value="autre">Autre...</option>
+                  </select>
+                ) : (
+                  <div className="secondary-form">
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Désignation de la direction"
+                      value={newDirection.designation}
+                      onChange={(e) => setNewDirection({ ...newDirection, designation: e.target.value })}
+                    />
+                    <div className="secondary-form-buttons">
+                      <button type="button" onClick={handleAddDirection}>Ajouter</button>
+                      <button type="button" onClick={() => setShowDirectionForm(false)}>Annuler</button>
+                    </div>
+                  </div>
+                )}
+                {errors.idDirection && <span className="form-error">{errors.idDirection}</span>}
+              </div>
 
             <div className="form-group">
               <label>Encadrant :</label>
@@ -339,24 +496,49 @@ function StageForm({ initialData, onSubmit, onCancel }) {
                   </option>
                 ))}
               </select>
+              {errors.idEncd && <span className="form-error">{errors.idEncd}</span>}
             </div>
 
             <div className="form-group">
               <label>Thème :</label>
-              <select
-                name="idTheme"
-                className="form-select"
-                value={formData.idTheme}
-                onChange={handleChange}
-                required
-              >
-                <option value="">-- Sélectionner un thème --</option>
-                {themes.map((theme) => (
-                  <option key={theme.idTheme} value={theme.idTheme}>
-                    {theme.titre}
-                  </option>
-                ))}
-              </select>
+              {!showThemeForm ? (
+                <select
+                  name="idTheme"
+                  className="form-select"
+                  value={formData.idTheme}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- Sélectionner un thème --</option>
+                  {themes.map((theme) => (
+                    <option key={theme.idTheme} value={theme.idTheme}>
+                      {theme.titre}
+                    </option>
+                  ))}
+                  <option value="autre">Autre...</option>
+                </select>
+              ) : (
+                <div className="secondary-form">
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Titre du thème"
+                    value={newTheme.titre}
+                    onChange={(e) => setNewTheme({ ...newTheme, titre: e.target.value })}
+                  />
+                  <textarea
+                    className="form-input"
+                    placeholder="Description du thème"
+                    value={newTheme.description}
+                    onChange={(e) => setNewTheme({ ...newTheme, description: e.target.value })}
+                  />
+                  <div className="secondary-form-buttons">
+                    <button type="button" onClick={handleAddTheme}>Ajouter</button>
+                    <button type="button" onClick={() => setShowThemeForm(false)}>Annuler</button>
+                  </div>
+                </div>
+              )}
+              {errors.idTheme && <span className="form-error">{errors.idTheme}</span>}
             </div>
           </div>
 

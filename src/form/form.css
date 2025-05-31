@@ -258,6 +258,53 @@
   color: #444;
 }
 
+.form-error {
+  color: red;
+  font-size: 0.95em;
+  margin-top: 2px;
+  display: block;
+}
+.secondary-form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.secondary-form-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.secondary-form-buttons button:first-child {
+  background: linear-gradient(to right, #e76903, #f97316);
+  color: white;
+}
+
+.secondary-form-buttons button:first-child:hover {
+  background: linear-gradient(to right, #f97316, #ea580c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 105, 3, 0.25);
+}
+
+.secondary-form-buttons button:last-child {
+  background: linear-gradient(to right, #777777, #666666);
+  color: white;
+}
+
+.secondary-form-buttons button:last-child:hover {
+  background: linear-gradient(to right, #666666, #555555);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(119, 119, 119, 0.25);
+}
+
+
+
+
+
 /* Responsive Styles pour les formulaires */
 @media (max-width: 1200px) {
   .form-grid {

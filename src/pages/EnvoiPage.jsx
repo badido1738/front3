@@ -89,40 +89,57 @@ const EnvoiPage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+// Update the useEffect section where data is fetched and combined
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
-        // Get user profile (which includes direction info)
-        const profile = await fetchUserProfile();
-        if (profile && profile.designationDirection) {
-          setCurrentUserDirection(profile.designationDirection);
-        }
-
-        const directionsData = await fetchWithAuth("http://localhost:8080/directions");
-        setDirections(directionsData);
-
-        const [stagiairesData, apprentisData] = await Promise.all([
-          fetchWithAuth("http://localhost:8080/stagiaires"),
-          fetchWithAuth("http://localhost:8080/apprentis")
-        ]);
-
-        const combinedTrainees = [
-          ...stagiairesData.map(s => ({ ...s, type: 'Stagiaire' })),
-          ...apprentisData.map(a => ({ ...a, type: 'Apprenti' }))
-        ];
-
-        setStagiaires(combinedTrainees);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
+      // Get user profile (which includes direction info)
+      const profile = await fetchUserProfile();
+      if (profile && profile.designationDirection) {
+        setCurrentUserDirection(profile.designationDirection);
       }
-    };
 
-    fetchData();
-  }, []);
+      const directionsData = await fetchWithAuth("http://localhost:8080/directions");
+      setDirections(directionsData);
+
+      // Fetch both stagiaires and apprentis
+      const [stagiairesData, apprentisData] = await Promise.all([
+        fetchWithAuth("http://localhost:8080/stagiaires"),
+        fetchWithAuth("http://localhost:8080/apprentis")
+      ]);
+
+      // First, process apprentis
+      const apprentisProcessed = apprentisData.map(a => ({ 
+        ...a, 
+        type: 'Apprenti' 
+      }));
+
+      // Get IDs of apprentis to exclude from stagiaires
+      const apprentisIds = apprentisProcessed.map(a => a.idAS);
+
+      // Process stagiaires, excluding those who are also apprentis
+      const stagiairesProcessed = stagiairesData
+        .filter(s => !apprentisIds.includes(s.idAS))
+        .map(s => ({ 
+          ...s, 
+          type: 'Stagiaire' 
+        }));
+
+      // Combine filtered lists
+      const combinedTrainees = [...apprentisProcessed, ...stagiairesProcessed];
+
+      setStagiaires(combinedTrainees);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

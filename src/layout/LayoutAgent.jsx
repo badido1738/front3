@@ -1,11 +1,20 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import SidebarAgent from "../components/SidebarAgent";
 import Header from "../components/Header";
 import "./layout.css";
 
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const userRole = localStorage.getItem('role');
+    if (userRole === 'ROLE_agentCirculation' && location.pathname === '/statistiques') {
+      navigate('/documents/circulation/notification');
+    }
+  }, [navigate, location]);
 
   const handleClickOutsideSidebar = () => {
     if (isSidebarOpen) {
